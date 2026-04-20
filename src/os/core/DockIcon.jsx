@@ -1,4 +1,5 @@
 import React from 'react';
+import { tokens } from '../styles/tokens';
 
 const styles = {
     container: {
@@ -11,23 +12,22 @@ const styles = {
         transition: 'transform 0.1s ease',
     },
     iconBox: {
-        width: '48px',
-        height: '48px',
+        width: '40px',
+        height: '40px',
         backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        borderRadius: '12px',
+        borderRadius: '8px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: '24px',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+        fontSize: '20px',
+        border: '1px solid #333333',
         userSelect: 'none',
     },
     indicator: {
         width: '4px',
         height: '4px',
         borderRadius: '50%',
-        backgroundColor: '#fff',
+        backgroundColor: tokens.colors.accent,
         opacity: 0,
         transition: 'opacity 0.2s',
     },

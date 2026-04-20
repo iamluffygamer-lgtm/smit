@@ -1,57 +1,73 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useOSStore } from '../store/osStore';
 
 export const BootScreen = () => {
     const setBooted = useOSStore(state => state.setBooted);
+    const [step, setStep] = useState(0);
 
     useEffect(() => {
-        // Simulate boot sequence
-        const timer = setTimeout(() => {
-            setBooted(true);
-        }, 2500);
-        return () => clearTimeout(timer);
+        const sequence = [
+            { delay: 1000, step: 1 },
+            { delay: 1100, step: 2 },
+            { delay: 1200, step: 3 },
+            { delay: 1300, step: 4 },
+            { delay: 1900, step: 5 },
+        ];
+
+        let timeouts = sequence.map(s => setTimeout(() => {
+            if (s.step === 5) {
+                setBooted(true);
+            } else {
+                setStep(s.step);
+            }
+        }, s.delay));
+
+        return () => timeouts.forEach(clearTimeout);
     }, [setBooted]);
 
     return (
         <div style={{
             height: '100vh',
             width: '100vw',
-            background: '#000000',
-            color: '#ffffff',
+            backgroundColor: '#000000',
+            color: '#444444',
             display: 'flex',
+            flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            flexDirection: 'column',
-            fontFamily: 'monospace',
+            fontFamily: '"JetBrains Mono", "Fira Code", monospace',
             zIndex: 99999
         }}>
-            <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>Smit OS</div>
-            <div style={{ color: '#666' }}>Booting system...</div>
-            {/* Simple loader */}
             <div style={{
-                marginTop: '20px',
-                width: '200px',
-                height: '2px',
-                background: '#333',
-                position: 'relative',
-                overflow: 'hidden'
+                color: '#ffffff',
+                fontSize: '13px',
+                letterSpacing: '4px',
+                textTransform: 'uppercase',
+                marginBottom: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
             }}>
-                <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    height: '100%',
-                    width: '50%',
-                    background: '#fff',
-                    animation: 'loading 1s infinite ease-in-out'
-                }} />
+                SMIT OS
+                <span className="blinking-cursor">_</span>
             </div>
+            
+            <div style={{ textAlign: 'left', minWidth: '200px', fontSize: '13px' }}>
+                {step >= 1 && <div>Initializing system...</div>}
+                {step >= 2 && <div>Loading applications...</div>}
+                {step >= 3 && <div>Mounting workspace...</div>}
+                {step >= 4 && <div style={{ color: '#ffffff', marginTop: '8px' }}>Ready.</div>}
+            </div>
+
             <style>{`
-            @keyframes loading {
-                0% { left: -50%; }
-                100% { left: 100%; }
+            @keyframes blink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0; }
             }
-        `}</style>
+            .blinking-cursor {
+                animation: blink 0.5s step-end infinite;
+            }
+            `}</style>
         </div>
     );
 };

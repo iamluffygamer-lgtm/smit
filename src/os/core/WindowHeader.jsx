@@ -1,57 +1,46 @@
 import React from 'react';
 import { useWindowDrag } from '../hooks/useWindowDrag';
+import { tokens } from '../styles/tokens';
 
 const styles = {
     header: {
-        height: '36px',
-        backgroundColor: '#f0f0f0',
-        borderBottom: '1px solid #ddd',
+        height: tokens.spacing.layout.headerHeight,
+        borderBottom: `1px solid ${tokens.colors.borderDefault}`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 8px',
+        padding: `0 ${tokens.spacing.sm}`,
         userSelect: 'none',
-        touchAction: 'none', // Crucial for pointer events
-        borderTopLeftRadius: '5px', // Match window border
-        borderTopRightRadius: '5px',
+        backgroundColor: tokens.colors.bgSurface, // Same as window, seamless
     },
     title: {
-        flex: 1,
-        fontSize: '13px',
-        fontFamily: 'sans-serif',
-        color: '#444',
-        textAlign: 'center',
-        fontWeight: 500,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        pointerEvents: 'none', // Allow drag click to pass through text
+        fontSize: tokens.typography.size.xs,
+        fontWeight: tokens.typography.weight.medium,
+        color: tokens.colors.textSecondary,
+        textTransform: 'uppercase', // Technical feel
+        letterSpacing: '0.5px',
     },
     controls: {
         display: 'flex',
-        gap: '6px',
-        alignItems: 'center',
+        gap: tokens.spacing.sm,
     },
-    spacer: {
-        width: '60px', // Balance the title centering
-    },
+    // Square, monochrome buttons
     btn: {
         width: '24px',
         height: '24px',
-        border: 'none',
-        background: 'transparent',
-        borderRadius: '4px',
-        color: '#666',
+        border: `1px solid ${tokens.colors.borderSubtle}`,
+        backgroundColor: 'transparent',
+        cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        cursor: 'pointer',
-        fontSize: '14px',
-        padding: 0,
-        lineHeight: 1,
+        color: tokens.colors.textSecondary,
+        borderRadius: tokens.radius.sm,
+    },
+    spacer: {
+        width: '56px', // Approximate width of controls to balance title
     }
 };
-
 export const WindowHeader = ({
     windowState,
     onDrag,

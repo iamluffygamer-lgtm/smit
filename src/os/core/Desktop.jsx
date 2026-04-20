@@ -8,11 +8,9 @@ const styles = {
     wallpaper: {
         width: '100vw',
         height: '100vh',
-        // Using a nice minimal gradient or potentially an image from assets if available. 
-        // Fallback to a dark gradient for now to look "hacker-ish" / clean.
-        background: 'linear-gradient(135deg, #1e1e1e 0%, #0d0d0d 100%)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        backgroundColor: '#050505',
+        backgroundImage: 'radial-gradient(circle, #1a1a1a 1px, transparent 1px)',
+        backgroundSize: '24px 24px',
         overflow: 'hidden',
         position: 'relative',
         userSelect: 'none',

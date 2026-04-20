@@ -4,33 +4,41 @@ import { useSystemStateStore } from '../system/systemStateStore';
 import { WindowHeader } from './WindowHeader';
 import { ResizeHandles } from './ResizeHandles';
 import { WindowContent } from './WindowContent';
+// Inside src/os/core/Window.jsx
+import { tokens } from '../styles/tokens';
 
 const styles = {
     window: {
         position: 'absolute',
-        backgroundColor: '#ffffff',
-        border: '1px solid #ccc',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-        borderRadius: '6px',
+        backgroundColor: tokens.colors.bgSurface,
+        borderRadius: tokens.radius.md,
+        // Default state: Subtle border, low shadow
+        boxShadow: tokens.elevation.window,
+        color: tokens.colors.textPrimary,
+        fontFamily: tokens.typography.fontFamily.sans,
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
+        transition: `box-shadow ${tokens.motion.fast}, transform ${tokens.motion.fast}`,
     },
     focused: {
-        borderColor: '#999',
-        boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
+        // Focused state: Brighter border, deeper shadow
+        boxShadow: tokens.elevation.windowFocused,
+        borderColor: tokens.colors.borderFocus,
         zIndex: 1000,
     },
     content: {
         flex: 1,
-        position: 'relative',
         overflow: 'hidden',
-        backgroundColor: '#fff',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
     },
     appContainer: {
-        width: '100%',
-        height: '100%',
-        overflow: 'auto',
+        flex: 1,
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
     }
 };
 
@@ -41,8 +49,6 @@ export const Window = ({ windowState, actions }) => {
     } = windowState;
 
     const isMobileMode = useSystemStateStore((state) => state.isMobileMode);
-
-    if (minimized) return null;
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -57,6 +63,22 @@ export const Window = ({ windowState, actions }) => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [focused, maximized, id, actions, isMobileMode]);
 
+    // Proxy actions to enforce mobile rules (Back instead of Close, No Restore)
+    const windowActions = {
+        ...actions,
+        restoreWindow: (wid) => {
+            if (isMobileMode) return; // Disable restore
+            actions.restoreWindow(wid);
+        },
+        maximizeWindow: (wid) => {
+            if (isMobileMode) return; // Already maxed
+            actions.maximizeWindow(wid);
+        }
+        // Close remains close, acts as "Back" naturally by removing window
+    };
+
+    if (minimized) return null;
+
     const geometry = maximized
         ? {
             top: 40,
@@ -68,6 +90,8 @@ export const Window = ({ windowState, actions }) => {
             border: 'none',
         }
         : {
+            top: 0,
+            left: 0,
             width,
             height,
             transform: `translate3d(${x}px, ${y}px, 0)`
@@ -94,20 +118,6 @@ export const Window = ({ windowState, actions }) => {
             actions.moveWindow(id, nx, ny);
         }
         actions.resizeWindow(id, nw, nh);
-    };
-
-    // Proxy actions to enforce mobile rules (Back instead of Close, No Restore)
-    const windowActions = {
-        ...actions,
-        restoreWindow: (wid) => {
-            if (isMobileMode) return; // Disable restore
-            actions.restoreWindow(wid);
-        },
-        maximizeWindow: (wid) => {
-            if (isMobileMode) return; // Already maxed
-            actions.maximizeWindow(wid);
-        }
-        // Close remains close, acts as "Back" naturally by removing window
     };
 
     return (

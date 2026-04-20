@@ -4,29 +4,44 @@ import { useWindowStore } from '../store/windowStore';
 import { appRegistry } from '../apps/appRegistry';
 import { DockIcon } from './DockIcon';
 import { useSystemStateStore } from '../system/systemStateStore';
+import { tokens } from '../styles/tokens';
 
+// Inside src/os/core/Dock.jsx
 const styles = {
     container: {
         position: 'absolute',
-        bottom: '24px',
+        bottom: tokens.spacing.lg,
         left: '50%',
         transform: 'translateX(-50%)',
+        height: '64px',
+        backgroundColor: tokens.colors.bgSurface,
+        border: `1px solid ${tokens.colors.borderDefault}`,
+        borderRadius: tokens.radius.md,
+        boxShadow: tokens.elevation.floating,
         display: 'flex',
-        alignItems: 'flex-end',
-        gap: '12px',
-        padding: '12px 16px',
-        backgroundColor: 'rgba(20, 20, 20, 0.7)',
-        backdropFilter: 'blur(12px)',
-        borderRadius: '20px',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-        zIndex: 10000,
+        alignItems: 'center',
+        padding: '0 12px',
+        gap: tokens.spacing.md,
+        zIndex: 9999,
+    },
+    // Active indicator is a sharp line, not a dot
+    activeIndicator: {
+        position: 'absolute',
+        bottom: '-1px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '12px',
+        height: '2px',
+        backgroundColor: tokens.colors.accent,
     }
 };
 
 export const Dock = () => {
     const windows = useWindowStore((state) => state.windows);
     const openWindow = useWindowStore((state) => state.openWindow);
+    const minimizeWindow = useWindowStore((state) => state.minimizeWindow);
+    const focusWindow = useWindowStore((state) => state.focusWindow);
+    const restoreWindow = useWindowStore((state) => state.restoreWindow);
     const isMobileMode = useSystemStateStore((state) => state.isMobileMode);
 
     // Mobile Dock Styles
@@ -49,7 +64,20 @@ export const Dock = () => {
     };
 
     const isAppActive = (appId) => {
-        return windows.some((win) => win.appId === appId);
+        return windows.some((win) => win.appId === appId && !win.minimized);
+    };
+
+    const handleDockClick = (appId) => {
+        const win = windows.find((w) => w.appId === appId);
+        if (!win) {
+            openWindow(appId);
+        } else if (win.minimized) {
+            restoreWindow(win.id);
+        } else if (win.focused) {
+            minimizeWindow(win.id);
+        } else {
+            focusWindow(win.id);
+        }
     };
 
     return (
@@ -59,7 +87,7 @@ export const Dock = () => {
                     key={app.id}
                     app={app}
                     isActive={isAppActive(app.id)}
-                    onClick={openWindow}
+                    onClick={handleDockClick}
                 />
             ))}
         </div>
