@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { useOSNavigationStore } from '../store/osNavigationStore';
+import { useOsNavigationStore } from '../store/osNavigationStore';
 import { appRegistry } from '../apps/appRegistry'; // Assuming registry exports a lookup or array
 
 // Helper to resolve app component from ID
@@ -12,8 +12,8 @@ const getAppComponent = (appId) => {
 
 export const MobileAppContainer = () => {
     // Subscribe to relevant state
-    const mode = useOSNavigationStore((state) => state.mode);
-    const mobileStack = useOSNavigationStore((state) => state.mobileStack);
+    const mode = useOsNavigationStore((state) => state.mode);
+    const mobileStack = useOsNavigationStore((state) => state.mobileStack);
 
     // 1. If not in mobile mode, render nothing (DesktopManager takes over)
     if (mode !== 'mobile') return null;

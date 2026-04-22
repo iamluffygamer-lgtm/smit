@@ -53,7 +53,7 @@ export const useSystemStateStore = create((set, get) => ({
         updateTick();
         checkMobile();
 
-        const id = setInterval(updateTick, 60000);
+        const id = setInterval(updateTick, 1000);
         set({ _intervalId: id });
     },
 

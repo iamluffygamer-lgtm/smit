@@ -11,20 +11,20 @@ const styles = {
     window: {
         position: 'absolute',
         backgroundColor: tokens.colors.bgSurface,
-        borderRadius: tokens.radius.md,
+        borderRadius: '0px',
         // Default state: Subtle border, low shadow
-        boxShadow: tokens.elevation.window,
+        boxShadow: tokens.shadowLg,
         color: tokens.colors.textPrimary,
-        fontFamily: tokens.typography.fontFamily.sans,
+        fontFamily: tokens.typography.fontSans,
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
-        transition: `box-shadow ${tokens.motion.fast}, transform ${tokens.motion.fast}`,
+        transition: `box-shadow 0.2s ease, transform 0.2s ease`,
     },
     focused: {
         // Focused state: Brighter border, deeper shadow
-        boxShadow: tokens.elevation.windowFocused,
-        borderColor: tokens.colors.borderFocus,
+        boxShadow: tokens.shadowXl,
+        borderColor: tokens.colors.accentBorder,
         zIndex: 1000,
     },
     content: {
@@ -87,7 +87,8 @@ export const Window = ({ windowState, actions }) => {
             height: 'calc(100% - 40px)',
             transform: 'none',
             borderRadius: 0,
-            border: 'none',
+            borderStyle: 'none',
+            borderWidth: 0,
         }
         : {
             top: 0,

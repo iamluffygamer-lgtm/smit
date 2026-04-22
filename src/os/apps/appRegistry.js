@@ -2,7 +2,7 @@ export const appRegistry = [
     {
         id: 'about',
         name: 'About Me',
-        icon: '👤',
+        icon: '◈',
         defaultSize: {
             width: 600,
             height: 500
@@ -11,7 +11,7 @@ export const appRegistry = [
     {
         id: 'projects',
         name: 'Projects',
-        icon: '🚀',
+        icon: '▣',
         defaultSize: {
             width: 900,
             height: 600
@@ -20,7 +20,7 @@ export const appRegistry = [
     {
         id: 'terminal',
         name: 'Terminal',
-        icon: '💻',
+        icon: '◉',
         defaultSize: {
             width: 700,
             height: 450
@@ -29,7 +29,7 @@ export const appRegistry = [
     {
         id: 'contact',
         name: 'Contact',
-        icon: '📫',
+        icon: '○',
         defaultSize: {
             width: 400,
             height: 500

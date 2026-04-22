@@ -6,7 +6,7 @@ const styles = {
     container: {
         position: 'absolute',
         top: '8px',
-        right: '16px',
+        left: '16px',
         display: 'flex',
         alignItems: 'center',
         gap: '4px',

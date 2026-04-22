@@ -1,82 +1,73 @@
 export const tokens = {
-    colors: {
-        // Backgrounds
-        bgRoot: '#050505',      // The void behind the OS
-        bgSurface: '#111111',   // Windows, Panels
-        bgSurfaceHover: '#1a1a1a',
-        bgSurfaceActive: '#222222',
+  colors: {
+    bgCanvas:       '#0C0A08',
+    bgSurface:      '#141210',
+    bgElevated:     '#1C1916',
+    bgSunken:       '#080604',
+    bgSubtle:       '#1A1714',
 
-        // Text
-        textPrimary: '#ffffff',
-        textSecondary: '#888888',
-        textTertiary: '#444444',
+    accent:         '#E8A020',
+    accentHover:    '#F0B030',
+    accentMuted:    'rgba(232,160,32,0.12)',
+    accentBorder:   'rgba(232,160,32,0.28)',
 
-        // Borders
-        borderSubtle: '#222222',
-        borderDefault: '#333333',
-        borderHigh: '#555555',
-        borderFocus: '#ffffff', // High contrast focus state
+    textPrimary:    '#F0EDE8',
+    textSecondary:  '#9C9590',
+    textTertiary:   '#5C5854',
+    textDisabled:   '#3C3A38',
+    textOnAccent:   '#0C0A08',
 
-        // Accents (Functional)
-        accent: '#3291ff',      // System Blue (Selection, Primary Actions)
-        success: '#0070f3',
-        warning: '#f5a623',
-        error: '#ff0000',
+    borderFaint:    'rgba(240,237,232,0.04)',
+    borderSubtle:   'rgba(240,237,232,0.08)',
+    borderDefault:  'rgba(240,237,232,0.12)',
+    borderStrong:   'rgba(240,237,232,0.20)',
+    borderAccent:   'rgba(232,160,32,0.35)',
 
-        // Scrims
-        overlay: 'rgba(0, 0, 0, 0.5)',
+    shadowSm:  '0px 2px 8px -1px rgba(8,6,4,0.50)',
+    shadowMd:  '0px 8px 24px -4px rgba(8,6,4,0.60), 0px 3px 8px -2px rgba(8,6,4,0.35)',
+    shadowLg:  '0px 20px 48px -8px rgba(8,6,4,0.70), 0px 8px 16px -4px rgba(8,6,4,0.40)',
+    shadowXl:  '0px 36px 72px -12px rgba(8,6,4,0.80), 0px 12px 24px -6px rgba(8,6,4,0.45)',
+    shadowFocus: '0px 0px 0px 3px rgba(232,160,32,0.30)',
+
+    windowBg:       '#141210',
+    windowTitlebar: '#0C0A08',
+    windowBorder:   'rgba(240,237,232,0.08)',
+    desktopBg:      '#0C0A08',
+    dockBg:         'rgba(20,18,16,0.88)',
+    dockBorder:     'rgba(240,237,232,0.08)',
+    tooltipBg:      '#1C1916',
+    tooltipText:    '#F0EDE8',
+
+    success: '#4ADE80',
+    warning: '#FBBF24',
+    error:   '#F87171',
+  },
+
+  typography: {
+    fontMono: "'JetBrains Mono', 'Courier New', monospace",
+    fontSans: "'DM Sans', system-ui, sans-serif",
+    size: {
+      xxs: '10px', xs: '11px', sm: '12px',
+      md: '13px', base: '14px', lg: '16px',
+      xl: '20px', xxl: '28px', display: '48px',
     },
-
-    spacing: {
-        xs: '4px',
-        sm: '8px',
-        md: '16px',
-        lg: '24px',
-        xl: '32px',
-        layout: {
-            dockHeight: '48px',
-            headerHeight: '36px',
-        }
+    weight: {
+      regular: '400', medium: '500',
+      semibold: '600', bold: '700',
     },
-
-    radius: {
-        none: '0px',
-        sm: '2px',    // Buttons, Inputs
-        md: '6px',    // Windows, Cards
-        full: '999px' // Avatars only
+    lineHeight: {
+      tight: '1.2', normal: '1.5', loose: '1.8',
     },
+  },
 
-    elevation: {
-        none: 'none',
-        // Sharp, defined shadows. No soft glows.
-        window: '0 0 0 1px #333, 0 8px 30px rgba(0,0,0,0.5)',
-        windowFocused: '0 0 0 1px #555, 0 20px 50px rgba(0,0,0,0.7)',
-        floating: '0 4px 12px rgba(0,0,0,0.8)',
-        tool: '0 2px 4px rgba(0,0,0,0.5)'
-    },
+  spacing: {
+    px: '1px', '0': '0px', '1': '4px', '2': '8px',
+    '3': '12px', '4': '16px', '5': '20px', '6': '24px',
+    '8': '32px', '10': '40px', '12': '48px', '16': '64px',
+  },
 
-    typography: {
-        fontFamily: {
-            sans: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-            mono: '"JetBrains Mono", "Fira Code", monospace',
-        },
-        size: {
-            xs: '11px',
-            sm: '13px',
-            base: '14px',
-            lg: '16px',
-            xl: '24px',
-        },
-        weight: {
-            regular: 400,
-            medium: 500,
-            bold: 600
-        }
-    },
-
-    motion: {
-        // Fast, mechanical transitions
-        fast: '0.1s cubic-bezier(0.2, 0, 0, 1)',
-        normal: '0.2s cubic-bezier(0.2, 0, 0, 1)',
-    }
+  radius: {
+    none: '0px', sm: '2px', md: '4px',
+    lg: '6px', xl: '8px', full: '9999px',
+  },
 };

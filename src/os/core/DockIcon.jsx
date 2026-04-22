@@ -1,70 +1,80 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { tokens } from '../styles/tokens';
 
-const styles = {
-    container: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '6px',
-        cursor: 'pointer',
-        padding: '8px',
-        transition: 'transform 0.1s ease',
-    },
-    iconBox: {
-        width: '40px',
-        height: '40px',
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        borderRadius: '8px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '20px',
-        border: '1px solid #333333',
-        userSelect: 'none',
-    },
-    indicator: {
-        width: '4px',
-        height: '4px',
-        borderRadius: '50%',
-        backgroundColor: tokens.colors.accent,
-        opacity: 0,
-        transition: 'opacity 0.2s',
-    },
-    indicatorActive: {
-        opacity: 1,
-    },
-    tooltip: {
-        position: 'absolute',
-        bottom: '100%',
-        marginBottom: '8px',
-        padding: '4px 8px',
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        color: '#fff',
-        borderRadius: '4px',
-        fontSize: '12px',
-        opacity: 0,
-        pointerEvents: 'none',
-        whiteSpace: 'nowrap',
-    }
-};
-
 export const DockIcon = ({ app, isActive, onClick }) => {
+    const [isHovered, setIsHovered] = useState(false);
+
+    const styles = {
+        container: {
+            display: 'flex',
+            alignItems: 'center',
+            position: 'relative',
+            cursor: 'pointer',
+            padding: '8px',
+        },
+        iconBox: {
+            width: '36px',
+            height: '36px',
+            backgroundColor: isHovered ? tokens.colors.bgElevated : 'transparent',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '20px',
+            color: tokens.colors.textPrimary,
+            fontFamily: tokens.typography.fontMono,
+            borderRadius: tokens.radius.sm,
+            userSelect: 'none',
+            transition: 'background-color 0.1s ease',
+        },
+        indicatorContainer: {
+            position: 'absolute',
+            left: '0px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            height: '16px',
+            width: '2px',
+        },
+        indicator: {
+            width: '100%',
+            height: '100%',
+            backgroundColor: tokens.colors.accent,
+            opacity: isActive ? 1 : 0,
+            transition: 'opacity 0.2s',
+        },
+        tooltip: {
+            position: 'absolute',
+            bottom: 'calc(100% + 4px)',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            padding: '4px 8px',
+            backgroundColor: tokens.colors.bgElevated,
+            color: tokens.colors.textSecondary,
+            fontFamily: tokens.typography.fontMono,
+            borderRadius: tokens.radius.sm,
+            fontSize: '11px',
+            opacity: isHovered ? 1 : 0,
+            pointerEvents: 'none',
+            whiteSpace: 'nowrap',
+            transition: 'opacity 0.2s ease',
+        }
+    };
+
     return (
         <div
             style={styles.container}
             onClick={() => onClick(app.id)}
-            title={app.name} // Simple native tooltip fallback
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
         >
+            <div style={styles.tooltip}>
+                {app.name}
+            </div>
+            <div style={styles.indicatorContainer}>
+                <div style={styles.indicator} />
+            </div>
             <div style={styles.iconBox}>
                 {app.icon}
             </div>
-            <div
-                style={{
-                    ...styles.indicator,
-                    ...(isActive ? styles.indicatorActive : {})
-                }}
-            />
         </div>
     );
 };

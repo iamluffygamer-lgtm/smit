@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useOSStore } from '../store/osStore';
+import { tokens } from '../styles/tokens';
+
+const asciiArt = `  ░██████╗███╗░░░███╗██╗████████╗
+  ██╔════╝████╗░████║██║╚══██╔══╝
+  ╚█████╗░██╔████╔██║██║░░░██║░░░
+  ░╚═══██╗██║╚██╔╝██║██║░░░██║░░░
+  ██████╔╝██║░╚═╝░██║██║░░░██║░░░
+  ╚═════╝░╚═╝░░░░░╚═╝╚═╝░░░╚═╝░░░
+        OS — v1.0.0`;
 
 export const BootScreen = () => {
     const setBooted = useOSStore(state => state.setBooted);
@@ -11,11 +20,12 @@ export const BootScreen = () => {
             { delay: 1100, step: 2 },
             { delay: 1200, step: 3 },
             { delay: 1300, step: 4 },
-            { delay: 1900, step: 5 },
+            { delay: 1500, step: 5 },
+            { delay: 1900, step: 6 },
         ];
 
         let timeouts = sequence.map(s => setTimeout(() => {
-            if (s.step === 5) {
+            if (s.step === 6) {
                 setBooted(true);
             } else {
                 setStep(s.step);
@@ -29,45 +39,36 @@ export const BootScreen = () => {
         <div style={{
             height: '100vh',
             width: '100vw',
-            backgroundColor: '#000000',
-            color: '#444444',
+            backgroundColor: tokens.colors.bgCanvas,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+            fontFamily: tokens.typography.fontMono,
             zIndex: 99999
         }}>
-            <div style={{
-                color: '#ffffff',
+            <pre style={{
+                color: tokens.colors.accent,
                 fontSize: '13px',
-                letterSpacing: '4px',
-                textTransform: 'uppercase',
-                marginBottom: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
+                lineHeight: '1.2',
+                marginBottom: '32px',
+                textAlign: 'left'
             }}>
-                SMIT OS
-                <span className="blinking-cursor">_</span>
-            </div>
+                {asciiArt}
+            </pre>
             
-            <div style={{ textAlign: 'left', minWidth: '200px', fontSize: '13px' }}>
+            <div style={{ 
+                textAlign: 'left', 
+                minWidth: '240px', 
+                fontSize: '13px',
+                color: tokens.colors.textSecondary
+            }}>
                 {step >= 1 && <div>Initializing system...</div>}
                 {step >= 2 && <div>Loading applications...</div>}
                 {step >= 3 && <div>Mounting workspace...</div>}
-                {step >= 4 && <div style={{ color: '#ffffff', marginTop: '8px' }}>Ready.</div>}
+                {step >= 4 && <div style={{ marginTop: '8px' }}>Ready.</div>}
+                {step >= 5 && <div style={{ color: tokens.colors.textSecondary, marginTop: '8px' }}>[ OK ] smit-os ready.</div>}
             </div>
-
-            <style>{`
-            @keyframes blink {
-                0%, 100% { opacity: 1; }
-                50% { opacity: 0; }
-            }
-            .blinking-cursor {
-                animation: blink 0.5s step-end infinite;
-            }
-            `}</style>
         </div>
     );
 };

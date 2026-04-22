@@ -1,46 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useWindowDrag } from '../hooks/useWindowDrag';
 import { tokens } from '../styles/tokens';
 
-const styles = {
-    header: {
-        height: tokens.spacing.layout.headerHeight,
-        borderBottom: `1px solid ${tokens.colors.borderDefault}`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: `0 ${tokens.spacing.sm}`,
-        userSelect: 'none',
-        backgroundColor: tokens.colors.bgSurface, // Same as window, seamless
-    },
-    title: {
-        fontSize: tokens.typography.size.xs,
-        fontWeight: tokens.typography.weight.medium,
-        color: tokens.colors.textSecondary,
-        textTransform: 'uppercase', // Technical feel
-        letterSpacing: '0.5px',
-    },
-    controls: {
-        display: 'flex',
-        gap: tokens.spacing.sm,
-    },
-    // Square, monochrome buttons
-    btn: {
-        width: '24px',
-        height: '24px',
-        border: `1px solid ${tokens.colors.borderSubtle}`,
-        backgroundColor: 'transparent',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: tokens.colors.textSecondary,
-        borderRadius: tokens.radius.sm,
-    },
-    spacer: {
-        width: '56px', // Approximate width of controls to balance title
-    }
-};
 export const WindowHeader = ({
     windowState,
     onDrag,
@@ -50,6 +11,7 @@ export const WindowHeader = ({
     onRestore
 }) => {
     const { onPointerDown } = useWindowDrag(onDrag);
+    const [isHovered, setIsHovered] = useState(false);
 
     const handleDoubleClick = (e) => {
         e.stopPropagation();
@@ -62,41 +24,85 @@ export const WindowHeader = ({
         onPointerDown(e, windowState.x, windowState.y);
     };
 
+    const styles = {
+        header: {
+            height: '32px',
+            borderBottom: `1px solid ${tokens.colors.borderSubtle}`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: `0 ${tokens.spacing['3']}`,
+            userSelect: 'none',
+            backgroundColor: tokens.colors.windowTitlebar,
+        },
+        title: {
+            fontFamily: tokens.typography.fontMono,
+            fontSize: tokens.typography.size.sm,
+            fontWeight: tokens.typography.weight.medium,
+            color: tokens.colors.textSecondary,
+            letterSpacing: '0.04em',
+            textTransform: 'lowercase',
+            pointerEvents: 'none',
+        },
+        controls: {
+            display: 'flex',
+            gap: tokens.spacing['2'],
+        },
+        btn: {
+            width: '10px',
+            height: '10px',
+            borderRadius: '50%',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        closeBtn: {
+            backgroundColor: isHovered ? '#F87171' : tokens.colors.borderDefault,
+        },
+        minBtn: {
+            backgroundColor: isHovered ? '#FBBF24' : tokens.colors.borderDefault,
+        },
+        maxBtn: {
+            backgroundColor: isHovered ? '#4ADE80' : tokens.colors.borderDefault,
+        },
+        spacer: {
+            width: '40px', // Matches controls width to balance title
+        }
+    };
+
     return (
         <div
             style={styles.header}
             onPointerDown={handleDragStart}
             onDoubleClick={handleDoubleClick}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
         >
-            {/* Left spacer or icon could go here */}
             <div style={styles.spacer} />
 
             <div style={styles.title}>
-                {windowState.appId} — {windowState.id.slice(0, 4)}
+                {windowState.appId.toLowerCase()}
             </div>
 
             <div style={styles.controls} onPointerDown={(e) => e.stopPropagation()}>
                 <button
-                    style={styles.btn}
+                    style={{ ...styles.btn, ...styles.minBtn }}
                     onClick={() => onMinimize(windowState.id)}
                     title="Minimize"
-                >
-                    ─
-                </button>
+                />
                 <button
-                    style={styles.btn}
+                    style={{ ...styles.btn, ...styles.maxBtn }}
                     onClick={() => windowState.maximized ? onRestore(windowState.id) : onMaximize(windowState.id)}
                     title={windowState.maximized ? "Restore" : "Maximize"}
-                >
-                    {windowState.maximized ? '❐' : '□'}
-                </button>
+                />
                 <button
-                    style={{ ...styles.btn, fontSize: '18px' }}
+                    style={{ ...styles.btn, ...styles.closeBtn }}
                     onClick={() => onClose(windowState.id)}
                     title="Close"
-                >
-                    ×
-                </button>
+                />
             </div>
         </div>
     );

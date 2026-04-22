@@ -2,25 +2,25 @@ export const externalLinks = [
     {
         id: 'github',
         name: 'GitHub',
-        icon: '🐱',
+        icon: '◈',
         url: 'https://github.com/smit-os'
     },
     {
         id: 'instagram',
         name: 'Instagram',
-        icon: '📸',
+        icon: '◉',
         url: 'https://instagram.com/smit-os'
     },
     {
         id: 'discord',
         name: 'Discord',
-        icon: '🎮',
+        icon: '◇',
         url: 'https://discord.gg/smit-os'
     },
     {
         id: 'whatsapp',
         name: 'WhatsApp',
-        icon: '💬',
+        icon: '○',
         url: 'https://wa.me/1234567890'
     }
 ];

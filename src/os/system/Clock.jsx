@@ -4,9 +4,10 @@ import { useSystemStateStore } from './systemStateStore';
 const styles = {
     container: {
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-end',
+        flexDirection: 'row',
+        alignItems: 'center',
         justifyContent: 'center',
+        gap: '12px',
         fontSize: '12px',
         color: '#ffffff',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -20,12 +21,10 @@ const styles = {
     },
     date: {
         color: 'rgba(255, 255, 255, 0.7)',
-        fontSize: '11px',
-        marginTop: '2px',
+        fontSize: '12px',
     },
     status: {
-        fontSize: '10px',
-        marginTop: '2px',
+        fontSize: '11px',
         display: 'flex',
         alignItems: 'center',
         gap: '4px',
