@@ -4,6 +4,9 @@ import { Dock } from './Dock';
 import { SystemTray } from '../system/SystemTray';
 import { Clock } from '../system/Clock';
 import { tokens } from '../styles/tokens';
+import { useWindowStore } from '../store/windowStore';
+import { useSettingsStore } from '../store/settingsStore';
+import { CommandPalette } from './CommandPalette';
 
 const styles = {
     wallpaper: {
@@ -47,9 +50,21 @@ const styles = {
 };
 
 export const Desktop = () => {
+    const openWindow = useWindowStore(state => state.openWindow);
+    const wallpaper = useSettingsStore(state => state.wallpaper);
+
+    let wallpaperStyle = { ...styles.wallpaper };
+    if (wallpaper === 'grid') {
+        wallpaperStyle.backgroundImage = 'radial-gradient(circle, rgba(232,160,32,0.4) 1px, transparent 1px)';
+        wallpaperStyle.backgroundSize = '28px 28px';
+    } else if (wallpaper === 'noise') {
+        wallpaperStyle.backgroundImage = 'repeating-linear-gradient(45deg, rgba(240,237,232,0.025) 0px, rgba(240,237,232,0.025) 1px, transparent 1px, transparent 8px)';
+    }
+
     return (
-        <div style={styles.wallpaper}>
+        <div style={wallpaperStyle}>
             <div style={styles.scanline} />
+            <CommandPalette openWindow={openWindow} />
             <div style={styles.topBar}>
                 <Clock />
                 <div style={{ width: 16 }} />

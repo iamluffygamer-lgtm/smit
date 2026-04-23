@@ -1,6 +1,7 @@
 import React from 'react';
 import { externalLinks } from '../config/externalLinks';
 import { TrayIcon } from './TrayIcon';
+import { tokens } from '../styles/tokens';
 
 const styles = {
     container: {
@@ -11,11 +12,11 @@ const styles = {
         alignItems: 'center',
         gap: '4px',
         padding: '4px 8px',
-        backgroundColor: '#111111',
+        backgroundColor: tokens.colors.bgElevated,
         borderRadius: '4px',
-        border: '1px solid #333333',
+        border: `1px solid ${tokens.colors.borderSubtle}`,
         zIndex: 10000,
-        color: '#fff',
+        color: tokens.colors.textPrimary,
     }
 };
 

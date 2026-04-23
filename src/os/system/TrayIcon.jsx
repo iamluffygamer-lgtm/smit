@@ -1,4 +1,5 @@
 import React from 'react';
+import { tokens } from '../styles/tokens';
 
 const styles = {
     container: {
@@ -14,7 +15,7 @@ const styles = {
         userSelect: 'none',
     },
     hover: {
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        backgroundColor: tokens.colors.borderSubtle,
     }
 };
 

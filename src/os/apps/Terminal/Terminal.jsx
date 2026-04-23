@@ -4,24 +4,28 @@ import { useWindowStore } from '../../store/windowStore';
 import { appRegistry } from '../appRegistry';
 import { commands } from './commands';
 import { loadState, saveState } from '../../system/persistence';
+import { tokens } from '../../styles/tokens';
 
 const styles = {
     container: {
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        backgroundColor: '#0c0c0c',
-        color: '#cccccc',
-        fontFamily: '"Fira Code", "Courier New", monospace',
-        fontSize: '14px',
-        padding: '8px',
+        backgroundColor: tokens.colors.bgSurface,
+        color: tokens.colors.textSecondary,
+        fontFamily: tokens.typography.fontMono,
+        fontSize: '13px',
+        padding: '12px',
         overflow: 'hidden',
+        boxSizing: 'border-box',
     },
     output: {
         flex: 1,
         overflowY: 'auto',
         whiteSpace: 'pre-wrap',
         marginBottom: '8px',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
     },
     line: {
         lineHeight: '1.5',
@@ -32,7 +36,7 @@ const styles = {
         alignItems: 'center',
     },
     prompt: {
-        color: '#27c93f',
+        color: tokens.colors.accent,
         marginRight: '8px',
         fontWeight: 'bold',
     },
@@ -40,11 +44,11 @@ const styles = {
         flex: 1,
         backgroundColor: 'transparent',
         border: 'none',
-        color: '#ffffff',
+        color: tokens.colors.textPrimary,
         fontFamily: 'inherit',
         fontSize: 'inherit',
         outline: 'none',
-        caretColor: '#ffffff',
+        caretColor: tokens.colors.accent,
     }
 };
 
@@ -146,7 +150,10 @@ export const Terminal = () => {
     };
 
     return (
-        <div style={styles.container} onClick={handleContainerClick}>
+        <div style={styles.container} onClick={handleContainerClick} className="terminal-container">
+            <style dangerouslySetInnerHTML={{__html: `
+                .terminal-container ::-webkit-scrollbar { display: none; }
+            `}} />
             <div style={styles.output} ref={outputRef}>
                 {history.map((line, i) => (
                     <div key={i} style={styles.line}>{line}</div>
