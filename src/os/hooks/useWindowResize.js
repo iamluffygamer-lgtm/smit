@@ -28,6 +28,12 @@ export const useWindowResize = (onResize) => {
         }
     }, []);
 
+    const onResizeRef = useRef(onResize);
+
+    useEffect(() => {
+        onResizeRef.current = onResize;
+    }, [onResize]);
+
     useEffect(() => {
         if (!isResizing) return;
 
@@ -38,7 +44,6 @@ export const useWindowResize = (onResize) => {
 
             let { x, y, width, height } = initial;
 
-            // Calculate new dimensions
             if (direction.includes('e')) width += deltaX;
             if (direction.includes('w')) {
                 width -= deltaX;
@@ -50,11 +55,7 @@ export const useWindowResize = (onResize) => {
                 y += deltaY;
             }
 
-            // Enforce minimums here or let the store/component enforce?
-            // Component enforcing is safer for decoupling.
-            // We pass raw calculations.
-
-            onResize({ x, y, width, height });
+            onResizeRef.current({ x, y, width, height });
         };
 
         const handlePointerUp = () => {
@@ -68,7 +69,7 @@ export const useWindowResize = (onResize) => {
             document.removeEventListener('pointermove', handlePointerMove);
             document.removeEventListener('pointerup', handlePointerUp);
         };
-    }, [isResizing, onResize]);
+    }, [isResizing]);
 
     return {
         initResize,

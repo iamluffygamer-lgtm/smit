@@ -20,8 +20,8 @@ const styles = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '8px 24px',
-        gap: tokens.spacing['4'],
+        padding: '0 24px',
+        gap: '4px',
         zIndex: 9999,
         boxSizing: 'border-box'
     }

@@ -19,7 +19,7 @@ const styles = {
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
-        transition: `box-shadow 0.2s ease, transform 0.2s ease`,
+        transition: `box-shadow 0.2s ease`,
     },
     focused: {
         // Focused state: Brighter border, deeper shadow
@@ -95,7 +95,7 @@ export const Window = ({ windowState, actions }) => {
             left: 0,
             width,
             height,
-            transform: `translate3d(${x}px, ${y}px, 0)`
+            transform: `translate3d(${x}px, ${Math.max(40, y)}px, 0)`
         };
 
     const containerStyle = {
@@ -111,7 +111,8 @@ export const Window = ({ windowState, actions }) => {
 
     const handleMove = (newX, newY) => {
         if (isMobileMode) return;
-        actions.moveWindow(id, newX, newY);
+        const clampedY = Math.max(40, newY);
+        actions.moveWindow(id, newX, clampedY);
     };
 
     const handleResize = (nx, ny, nw, nh) => {

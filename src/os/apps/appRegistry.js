@@ -34,5 +34,14 @@ export const appRegistry = [
             width: 400,
             height: 500
         }
+    },
+    {
+        id: 'settings',
+        name: 'Settings',
+        icon: '⎔',
+        defaultSize: {
+            width: 500,
+            height: 450
+        }
     }
 ];

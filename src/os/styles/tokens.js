@@ -6,10 +6,10 @@ export const tokens = {
     bgSunken:       '#080604',
     bgSubtle:       '#1A1714',
 
-    accent:         '#E8A020',
-    accentHover:    '#F0B030',
-    accentMuted:    'rgba(232,160,32,0.12)',
-    accentBorder:   'rgba(232,160,32,0.28)',
+    accent:         'var(--os-accent)',
+    accentHover:    'var(--os-accent-hover)',
+    accentMuted:    'var(--os-accent-muted)',
+    accentBorder:   'var(--os-accent-border)',
 
     textPrimary:    '#F0EDE8',
     textSecondary:  '#9C9590',

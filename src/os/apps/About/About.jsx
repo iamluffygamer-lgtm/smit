@@ -1,12 +1,13 @@
 import React from 'react';
 import { aboutData } from './about.data.js';
+import { tokens } from '../../styles/tokens';
 
 export const About = () => {
     // Base inline styles matching user tokens logic visually
     const styles = {
         container: {
             padding: '20px',
-            backgroundColor: '#141210',
+            backgroundColor: tokens.colors.bgSurface,
             height: '100%',
             overflowY: 'auto',
             boxSizing: 'border-box',
@@ -15,34 +16,34 @@ export const About = () => {
         },
         // SECTION 1 — HEADER
         headerLabel: {
-            color: '#E8A020',
-            fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+            color: tokens.colors.accent,
+            fontFamily: tokens.typography.fontMono,
             fontSize: '11px',
             margin: '0 0 8px 0',
         },
         name: {
-            color: '#F0EDE8',
+            color: tokens.colors.textPrimary,
             fontSize: '20px',
-            fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+            fontFamily: tokens.typography.fontMono,
             fontWeight: 600,
             margin: '0 0 4px 0',
         },
         titleLine: {
-            color: '#9C9590',
+            color: tokens.colors.textSecondary,
             fontSize: '13px',
             margin: '0 0 4px 0',
-            fontFamily: "'DM Sans', system-ui, sans-serif",
+            fontFamily: tokens.typography.fontSans,
         },
         locationHandle: {
-            color: '#5C5854',
+            color: tokens.colors.textTertiary,
             fontSize: '12px',
-            fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+            fontFamily: tokens.typography.fontMono,
             margin: '0 0 16px 0',
         },
         hr: {
             width: '32px',
             height: '1px',
-            backgroundColor: '#E8A020',
+            backgroundColor: tokens.colors.accent,
             border: 'none',
             margin: '0 0 24px 0',
             padding: 0,
@@ -50,14 +51,14 @@ export const About = () => {
 
         // SECTION 2 — HEADLINE
         headlineContainer: {
-            borderLeft: '2px solid #E8A020',
+            borderLeft: `2px solid ${tokens.colors.accent}`,
             paddingLeft: '16px',
             marginBottom: '32px',
         },
         headline: {
-            color: '#F0EDE8',
+            color: tokens.colors.textPrimary,
             fontSize: '18px',
-            fontFamily: "'DM Sans', system-ui, sans-serif",
+            fontFamily: tokens.typography.fontSans,
             lineHeight: 1.4,
             margin: 0,
         },
@@ -69,7 +70,7 @@ export const About = () => {
             marginBottom: '32px',
         },
         statBox: {
-            borderRight: '1px solid rgba(240,237,232,0.08)',
+            borderRight: `1px solid ${tokens.colors.borderSubtle}`,
             paddingRight: '24px',
             marginRight: '24px',
             marginBottom: '16px',
@@ -78,24 +79,24 @@ export const About = () => {
             justifyContent: 'center',
         },
         statValue: {
-            color: '#E8A020',
+            color: tokens.colors.accent,
             fontSize: '24px',
-            fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+            fontFamily: tokens.typography.fontMono,
             fontWeight: 700,
             margin: '0 0 4px 0',
         },
         statLabel: {
-            color: '#9C9590',
+            color: tokens.colors.textSecondary,
             fontSize: '11px',
-            fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+            fontFamily: tokens.typography.fontMono,
             textTransform: 'uppercase',
             letterSpacing: '0.08em',
             margin: '0 0 2px 0',
         },
         statSub: {
-            color: '#5C5854',
+            color: tokens.colors.textTertiary,
             fontSize: '10px',
-            fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+            fontFamily: tokens.typography.fontMono,
             margin: 0,
         },
 
@@ -104,9 +105,9 @@ export const About = () => {
             marginBottom: '32px',
         },
         bioParagraph: {
-            color: '#9C9590',
+            color: tokens.colors.textSecondary,
             fontSize: '14px',
-            fontFamily: "'DM Sans', system-ui, sans-serif",
+            fontFamily: tokens.typography.fontSans,
             lineHeight: 1.7,
             margin: '0 0 12px 0',
         },
@@ -116,9 +117,9 @@ export const About = () => {
             marginBottom: '24px',
         },
         skillsMainLabel: {
-            color: '#E8A020',
+            color: tokens.colors.accent,
             fontSize: '11px',
-            fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+            fontFamily: tokens.typography.fontMono,
             letterSpacing: '0.1em',
             margin: '0 0 16px 0',
         },
@@ -126,9 +127,9 @@ export const About = () => {
             marginBottom: '16px',
         },
         skillCategoryLabel: {
-            color: '#5C5854',
+            color: tokens.colors.textTertiary,
             fontSize: '11px',
-            fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+            fontFamily: tokens.typography.fontMono,
             margin: '0 0 8px 0',
         },
         skillsItemsGroup: {
@@ -136,13 +137,13 @@ export const About = () => {
             flexWrap: 'wrap',
         },
         skillPill: {
-            backgroundColor: 'rgba(232,160,32,0.10)',
-            border: '1px solid rgba(232,160,32,0.25)',
-            color: '#E8A020',
+            backgroundColor: tokens.colors.accentMuted,
+            border: `1px solid ${tokens.colors.accentBorder}`,
+            color: tokens.colors.accent,
             padding: '3px 10px',
             borderRadius: '2px',
             fontSize: '11px',
-            fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+            fontFamily: tokens.typography.fontMono,
             margin: '3px',
         }
     };

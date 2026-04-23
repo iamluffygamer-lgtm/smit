@@ -32,6 +32,12 @@ export const useWindowDrag = (onDrag) => {
         }
     }, []);
 
+    const onDragRef = useRef(onDrag);
+
+    useEffect(() => {
+        onDragRef.current = onDrag;
+    }, [onDrag]);
+
     useEffect(() => {
         if (!isDragging) return;
 
@@ -39,8 +45,7 @@ export const useWindowDrag = (onDrag) => {
             const deltaX = e.clientX - dragRef.current.startX;
             const deltaY = e.clientY - dragRef.current.startY;
 
-            // Emit absolute position based on initial + delta
-            onDrag(
+            onDragRef.current(
                 dragRef.current.initialX + deltaX,
                 dragRef.current.initialY + deltaY
             );
@@ -48,10 +53,8 @@ export const useWindowDrag = (onDrag) => {
 
         const handlePointerUp = (e) => {
             setIsDragging(false);
-            // Release capture if strictly needed, though browser handles usually
         };
 
-        // Attach to document to ensure we track even if cursor leaves the element
         document.addEventListener('pointermove', handlePointerMove);
         document.addEventListener('pointerup', handlePointerUp);
 
@@ -59,7 +62,7 @@ export const useWindowDrag = (onDrag) => {
             document.removeEventListener('pointermove', handlePointerMove);
             document.removeEventListener('pointerup', handlePointerUp);
         };
-    }, [isDragging, onDrag]);
+    }, [isDragging]);
 
     return {
         onPointerDown: handlePointerDown,

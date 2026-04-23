@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { tokens } from '../../styles/tokens';
 
 export default function Contact() {
     const [hoveredRow, setHoveredRow] = useState(null);
@@ -23,7 +24,7 @@ export default function Contact() {
     const styles = {
         container: {
             padding: '20px',
-            backgroundColor: '#141210',
+            backgroundColor: tokens.colors.bgSurface,
             height: '100%',
             overflowY: 'auto',
             boxSizing: 'border-box',
@@ -31,16 +32,16 @@ export default function Contact() {
             msOverflowStyle: 'none',
         },
         sectionLabel: {
-            color: '#E8A020',
-            fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+            color: tokens.colors.accent,
+            fontFamily: tokens.typography.fontMono,
             fontSize: '11px',
             letterSpacing: '0.1em',
             marginBottom: '8px',
         },
         subtitle: {
-            color: '#9C9590',
+            color: tokens.colors.textSecondary,
             fontSize: '13px',
-            fontFamily: "'DM Sans', system-ui, sans-serif",
+            fontFamily: tokens.typography.fontSans,
             margin: '0 0 24px 0',
         },
         rowBase: {
@@ -48,49 +49,49 @@ export default function Contact() {
             justifyContent: 'space-between',
             alignItems: 'center',
             width: '100%',
-            padding: '14px 12px', // Add subtle horiz padding so hover background looks clean
-            borderBottom: '1px solid rgba(240,237,232,0.06)',
+            padding: '14px 12px',
+            borderBottom: `1px solid ${tokens.colors.borderSubtle}`,
             transition: 'background-color 0.2s ease',
             cursor: 'pointer',
             boxSizing: 'border-box',
         },
         rowHovered: {
-            backgroundColor: 'rgba(232,160,32,0.05)',
+            backgroundColor: tokens.colors.accentMuted,
         },
         rowLeft: {
-            color: '#5C5854',
+            color: tokens.colors.textTertiary,
             fontSize: '11px',
-            fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+            fontFamily: tokens.typography.fontMono,
             textTransform: 'uppercase',
             pointerEvents: 'none',
         },
         rowRight: {
-            color: '#F0EDE8',
+            color: tokens.colors.textPrimary,
             fontSize: '14px',
-            fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+            fontFamily: tokens.typography.fontMono,
             display: 'flex',
             alignItems: 'center',
             gap: '12px',
             pointerEvents: 'none', 
         },
         copiedText: {
-            color: '#E8A020',
+            color: tokens.colors.accent,
             fontSize: '11px',
-            textTransform: 'lowercase', // As requested: "copied!"
+            textTransform: 'lowercase',
             opacity: copied ? 1 : 0,
             transition: 'opacity 0.2s',
         },
         noticeBox: {
-            backgroundColor: 'rgba(232,160,32,0.08)',
-            border: '1px solid rgba(232,160,32,0.20)',
+            backgroundColor: tokens.colors.accentMuted,
+            border: `1px solid ${tokens.colors.accentBorder}`,
             borderRadius: '2px',
             padding: '16px',
             marginTop: '24px',
         },
         noticeTopLine: {
-            color: '#E8A020',
+            color: tokens.colors.accent,
             fontSize: '11px',
-            fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+            fontFamily: tokens.typography.fontMono,
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
@@ -101,15 +102,15 @@ export default function Contact() {
             animation: 'contactPulseAnim 1.5s infinite alternate',
         },
         noticeBody: {
-            color: '#9C9590',
+            color: tokens.colors.textSecondary,
             fontSize: '13px',
-            fontFamily: "'DM Sans', system-ui, sans-serif",
+            fontFamily: tokens.typography.fontSans,
             margin: '0 0 12px 0',
         },
         noticeBottom: {
-            color: '#E8A020',
+            color: tokens.colors.accent,
             fontSize: '12px',
-            fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+            fontFamily: tokens.typography.fontMono,
             margin: 0,
         }
     };

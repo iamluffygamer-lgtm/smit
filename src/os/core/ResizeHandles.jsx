@@ -25,13 +25,15 @@ export const ResizeHandles = ({ windowState, onResize }) => {
         let finalW = Math.max(newRect.width, MIN_W);
         let finalH = Math.max(newRect.height, MIN_H);
 
-        // If we hit min width/height while dragging left/top, 
-        // we must stop updating x/y to prevent drifting
         let finalX = newRect.x;
         let finalY = newRect.y;
 
-        if (newRect.width < MIN_W) finalX = x + (width - MIN_W); // approximate lock
-        if (newRect.height < MIN_H) finalY = y + (height - MIN_H);
+        if (newRect.width < MIN_W) {
+            finalX = (newRect.x !== x) ? x + (width - MIN_W) : newRect.x;
+        }
+        if (newRect.height < MIN_H) {
+            finalY = (newRect.y !== y) ? y + (height - MIN_H) : newRect.y;
+        }
 
         onResize(finalX, finalY, finalW, finalH);
     });
