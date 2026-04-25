@@ -217,9 +217,69 @@ export default function Settings() {
                                 <div style={{
                                     width: '100px',
                                     height: '64px',
-                                    backgroundColor: wp.bg,
-                                    backgroundImage: wp.bgImg || 'none',
-                                    backgroundSize: wp.bgSize || 'auto',
+                                    backgroundColor: wp.isImage ? 'transparent' : wp.bg,
+                                    backgroundImage: wp.isImage ? `url(${wp.preview})` : (wp.bgImg || 'none'),
+                                    backgroundSize: wp.isImage ? 'cover' : (wp.bgSize || 'auto'),
+                                    backgroundPosition: wp.isImage ? 'center' : '0% 0%',
+                                }} />
+                                <div style={{
+                                    padding: '6px 8px',
+                                    fontSize: '11px',
+                                    fontFamily: tokens.typography.fontMono,
+                                    color: selected ? tokens.colors.accent : tokens.colors.textTertiary,
+                                    borderTop: selected ? `1px solid ${tokens.colors.accentBorder}` : `1px solid ${tokens.colors.borderSubtle}`,
+                                    backgroundColor: tokens.colors.bgSurface,
+                                }}>
+                                    {wp.label}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                <div style={{
+                    width: '100%',
+                    marginTop: '16px',
+                    marginBottom: '8px',
+                    fontSize: '10px',
+                    fontFamily: tokens.typography.fontMono,
+                    color: tokens.colors.textTertiary,
+                    letterSpacing: '0.1em',
+                }}>
+                    // CHARACTER SERIES
+                </div>
+
+                <div style={styles.wallpaperRow}>
+                    {[
+                        { id: 'walter',    label: 'Heisenberg', isImage: true, preview: '/wallpapers/walter.png' },
+                        { id: 'peter',     label: 'Peter G.',   isImage: true, preview: '/wallpapers/peter.png' },
+                        { id: 'sheldon',   label: 'Sheldon',    isImage: true, preview: '/wallpapers/sheldon.png' },
+                        { id: 'luffy',     label: 'Luffy',      isImage: true, preview: '/wallpapers/luffy.png' },
+                        { id: 'pennywise', label: 'Pennywise',  isImage: true, preview: '/wallpapers/pennywise.png' },
+                        { id: 'roger',     label: 'Roger',      isImage: true, preview: '/wallpapers/roger.png' },
+                    ].map(wp => {
+                        const selected = wallpaper === wp.id;
+                        return (
+                            <div 
+                                key={wp.id}
+                                onClick={() => setWallpaper(wp.id)}
+                                style={{
+                                    border: selected ? `1px solid ${tokens.colors.accentBorder}` : `1px solid ${tokens.colors.borderSubtle}`,
+                                    borderRadius: '2px',
+                                    cursor: 'pointer',
+                                    padding: 0,
+                                    overflow: 'hidden',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                }}
+                            >
+                                <div style={{
+                                    width: '100px',
+                                    height: '64px',
+                                    backgroundColor: wp.isImage ? 'transparent' : wp.bg,
+                                    backgroundImage: wp.isImage ? `url(${wp.preview})` : (wp.bgImg || 'none'),
+                                    backgroundSize: wp.isImage ? 'cover' : (wp.bgSize || 'auto'),
+                                    backgroundPosition: wp.isImage ? 'center' : '0% 0%',
                                 }} />
                                 <div style={{
                                     padding: '6px 8px',

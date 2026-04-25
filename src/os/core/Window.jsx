@@ -6,6 +6,7 @@ import { ResizeHandles } from './ResizeHandles';
 import { WindowContent } from './WindowContent';
 // Inside src/os/core/Window.jsx
 import { tokens } from '../styles/tokens';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const styles = {
     window: {
@@ -91,11 +92,10 @@ export const Window = ({ windowState, actions }) => {
             borderWidth: 0,
         }
         : {
-            top: 0,
-            left: 0,
+            top: Math.max(40, y),
+            left: x,
             width,
             height,
-            transform: `translate3d(${x}px, ${Math.max(40, y)}px, 0)`
         };
 
     const containerStyle = {
@@ -122,10 +122,30 @@ export const Window = ({ windowState, actions }) => {
         actions.resizeWindow(id, nw, nh);
     };
 
+    const animationProps = maximized
+        ? {
+            initial: { opacity: 0 },
+            animate: { opacity: 1 },
+            exit: { opacity: 0 },
+            transition: { duration: 0.08 }
+        }
+        : {
+            initial: { opacity: 0, scaleX: 1.015, y: -3 },
+            animate: { opacity: 1, scaleX: 1, y: 0 },
+            exit: { opacity: 0, scale: 0.97 },
+            transition: {
+                opacity:  { duration: 0.10 },
+                scaleX:   { duration: 0.12, ease: [0.16, 1, 0.3, 1] },
+                scale:    { duration: 0.08, ease: 'easeIn' },
+                y:        { duration: 0.12, ease: [0.16, 1, 0.3, 1] },
+            }
+        };
+
     return (
-        <div
+        <motion.div
             style={containerStyle}
             onPointerDownCapture={handleFocus}
+            {...animationProps}
         >
             <WindowHeader
                 windowState={windowState}
@@ -148,7 +168,7 @@ export const Window = ({ windowState, actions }) => {
                     onResize={handleResize}
                 />
             )}
-        </div>
+        </motion.div>
     );
 };
 

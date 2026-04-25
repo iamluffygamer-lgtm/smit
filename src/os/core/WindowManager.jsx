@@ -1,6 +1,7 @@
 import React from 'react';
 import { useWindowStore } from '../store/windowStore';
 import { Window } from './Window';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const styles = {
     desktop: {
@@ -39,14 +40,16 @@ export const WindowManager = () => {
 
     return (
         <div style={styles.desktop}>
-            {windows.map((win) => (
-                <div key={win.id} style={styles.layer}>
-                    <Window
-                        windowState={win}
-                        actions={actions}
-                    />
-                </div>
-            ))}
+            <AnimatePresence>
+                {windows.map((win) => (
+                    <motion.div key={win.id} style={styles.layer}>
+                        <Window
+                            windowState={win}
+                            actions={actions}
+                        />
+                    </motion.div>
+                ))}
+            </AnimatePresence>
         </div>
     );
 };
