@@ -51,14 +51,14 @@ export const Dock = () => {
         return windows.some((win) => win.appId === appId && !win.minimized);
     };
 
-    const handleDockClick = (appId) => {
+    const handleDockClick = (appId, targetPos) => {
         const win = windows.find((w) => w.appId === appId);
         if (!win) {
-            openWindow(appId);
+            openWindow(appId, targetPos);
         } else if (win.minimized) {
-            restoreWindow(win.id);
+            restoreWindow(win.id, targetPos);
         } else if (win.focused) {
-            minimizeWindow(win.id);
+            minimizeWindow(win.id, targetPos);
         } else {
             focusWindow(win.id);
         }

@@ -167,14 +167,37 @@ export const Desktop = () => {
 
     return (
         <div 
-            style={wallpaperStyle}
+            style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden', backgroundColor: tokens.colors.bgCanvas, userSelect: 'none' }}
             onContextMenu={(e) => {
                 e.preventDefault();
                 setCtxMenu({ x: e.clientX, y: e.clientY });
             }}
             onClick={() => setCtxMenu(null)}
         >
-            <div style={styles.scanline} />
+            {/* WALLPAPER LAYER */}
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={wallpaper}
+                    initial={{ opacity: 0, scale: 1.02 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.985 }}
+                    transition={{
+                        duration: 0.32,
+                        ease: [0.16, 1, 0.3, 1]
+                    }}
+                    style={{
+                        ...wallpaperStyle,
+                        position: 'absolute',
+                        inset: 0,
+                        zIndex: 0,
+                        willChange: 'opacity, transform'
+                    }}
+                />
+            </AnimatePresence>
+
+            {/* UI LAYER */}
+            <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%' }}>
+                <div style={styles.scanline} />
 
 
             <CommandPalette openWindow={openWindow} />
@@ -302,6 +325,7 @@ export const Desktop = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+            </div>
         </div>
     );
 };

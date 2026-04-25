@@ -89,7 +89,7 @@ export const useWindowStore = create((set, get) => ({
     activeWindowId: initialState.activeWindowId,
     zIndexCounter: initialState.zIndexCounter,
 
-    openWindow: (appId) => {
+    openWindow: (appId, targetPos = null) => {
         const { windows, zIndexCounter } = get();
         const app = appRegistry.find(a => a.id === appId);
         if (!app) return;
@@ -111,7 +111,8 @@ export const useWindowStore = create((set, get) => ({
             zIndex: zIndexCounter + 1,
             minimized: false,
             maximized: isMobile, // Auto-maximize
-            focused: true
+            focused: true,
+            target: targetPos
         };
 
         set({
@@ -172,10 +173,10 @@ export const useWindowStore = create((set, get) => ({
         });
     },
 
-    minimizeWindow: (id) => {
+    minimizeWindow: (id, targetPos = null) => {
         // Optional: Disable minimize on mobile if single-window UX prefers closing
         set((state) => ({
-            windows: state.windows.map(w => w.id === id ? { ...w, minimized: true, focused: false } : w)
+            windows: state.windows.map(w => w.id === id ? { ...w, minimized: true, focused: false, target: targetPos } : w)
         }));
     },
 
@@ -185,17 +186,23 @@ export const useWindowStore = create((set, get) => ({
         }));
     },
 
-    restoreWindow: (id) => {
+    restoreWindow: (id, targetPos = null) => {
         // Disable restore on mobile
         if (useSystemStateStore.getState().isMobileMode) return;
 
         set((state) => ({
-            windows: state.windows.map(w => w.id === id ? { ...w, maximized: false, minimized: false } : w)
+            windows: state.windows.map(w => w.id === id ? { ...w, maximized: false, minimized: false, target: targetPos } : w)
         }));
     },
 
     bringToFront: (id) => {
         get().focusWindow(id);
+    },
+
+    clearWindowTarget: (id) => {
+        set((state) => ({
+            windows: state.windows.map(w => w.id === id ? { ...w, target: null } : w)
+        }));
     }
 }));
 

@@ -4,17 +4,29 @@ import { tokens } from '../styles/tokens';
 
 export const DockIcon = ({ app, isActive, onClick }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const iconRef = useRef(null);
 
   const bounceControls = useAnimation();
   const prevActive = useRef(isActive);
 
   useEffect(() => {
     if (!prevActive.current && isActive) {
+      // Open bounce
       bounceControls.start({
         y: [0, -8, 0],
         transition: {
           duration: 0.35,
           ease: [0.36, 0.07, 0.19, 0.97],
+        }
+      });
+    } else if (prevActive.current && !isActive) {
+      // Minimize bounce (lands after 220ms flight)
+      bounceControls.start({
+        scale: [1, 1.15, 1],
+        transition: {
+          duration: 0.18,
+          ease: 'easeOut',
+          delay: 0.22
         }
       });
     }
@@ -79,8 +91,19 @@ export const DockIcon = ({ app, isActive, onClick }) => {
 
   return (
     <div
+      ref={iconRef}
       style={styles.container}
-      onClick={() => onClick(app.id)}
+      onClick={() => {
+        if (iconRef.current) {
+          const rect = iconRef.current.getBoundingClientRect();
+          onClick(app.id, {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2
+          });
+        } else {
+          onClick(app.id);
+        }
+      }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

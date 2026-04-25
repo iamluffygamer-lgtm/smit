@@ -36,11 +36,12 @@ export const WindowManager = () => {
         maximizeWindow: useWindowStore((state) => state.maximizeWindow),
         restoreWindow: useWindowStore((state) => state.restoreWindow),
         bringToFront: useWindowStore((state) => state.bringToFront),
+        clearWindowTarget: useWindowStore((state) => state.clearWindowTarget),
     };
 
     return (
         <div style={styles.desktop}>
-            <AnimatePresence>
+            <AnimatePresence mode="popLayout">
                 {windows.map((win) => (
                     <motion.div key={win.id} style={styles.layer}>
                         <Window

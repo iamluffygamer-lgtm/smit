@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSettingsStore } from '../../store/settingsStore';
 import { tokens } from '../../styles/tokens';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Settings() {
+    const [activeSection, setActiveSection] = useState('appearance');
     const { 
         themeColor, setThemeColor, 
         clockFormat, setClockFormat,
@@ -102,13 +104,83 @@ export default function Settings() {
     };
 
     return (
-        <div style={styles.container} className="settings-container">
+        <div style={{ display: 'flex', height: '100%', backgroundColor: '#141210' }} className="settings-container">
             <style dangerouslySetInnerHTML={{__html: `
                 .settings-container::-webkit-scrollbar { display: none; }
+                .settings-content::-webkit-scrollbar { display: none; }
                 .reset-btn:hover { background-color: rgba(248,113,113,0.08) !important; }
             `}} />
 
-            {/* SECTION 1 — ACCENT COLOR */}
+            {/* Sidebar */}
+            <div style={{
+              width: '160px',
+              borderRight: `1px solid ${tokens.colors.borderSubtle}`,
+              padding: '16px 8px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4px',
+              boxSizing: 'border-box',
+            }}>
+              {[
+                { id: 'appearance', label: 'APPEARANCE' },
+                { id: 'system', label: 'SYSTEM' },
+                { id: 'about', label: 'ABOUT' }
+              ].map((section) => (
+                <motion.div
+                  key={section.id}
+                  onClick={() => setActiveSection(section.id)}
+                  whileHover={{ backgroundColor: 'rgba(255,255,255,0.04)' }}
+                  transition={{ duration: 0.12 }}
+                  style={{
+                    padding: '8px 12px',
+                    fontSize: '11px',
+                    fontFamily: tokens.typography.fontMono,
+                    cursor: 'pointer',
+                    color: activeSection === section.id
+                      ? tokens.colors.textPrimary
+                      : tokens.colors.textTertiary,
+                    backgroundColor: activeSection === section.id
+                      ? tokens.colors.bgSubtle
+                      : 'transparent',
+                    borderRadius: '2px',
+                    letterSpacing: '0.08em',
+                  }}
+                >
+                  {section.label}
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Content Panel */}
+            <div className="settings-content" style={{
+              flex: 1,
+              padding: '20px',
+              overflowY: 'auto',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              boxSizing: 'border-box',
+            }}>
+                <div style={{
+                  fontSize: '10px',
+                  fontFamily: tokens.typography.fontMono,
+                  color: tokens.colors.textTertiary,
+                  marginBottom: '12px',
+                  letterSpacing: '0.1em',
+                }}>
+                  SETTINGS / {activeSection.toUpperCase()}
+                </div>
+
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeSection}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.18, ease: 'easeOut' }}
+                  >
+                    {activeSection === 'appearance' && (
+                      <>
+                    {/* SECTION 1 — ACCENT COLOR */}
             <div>
                 <p style={styles.sectionLabel}>// ACCENT COLOR</p>
                 <p style={styles.sublabel}>Changes the OS highlight color globally.</p>
@@ -117,10 +189,17 @@ export default function Settings() {
                     {presets.map(preset => {
                         const isSelected = themeColor.toUpperCase() === preset.hex.toUpperCase();
                         return (
-                            <div 
+                            <motion.div 
                                 key={preset.hex}
                                 onClick={() => setThemeColor(preset.hex)}
                                 title={preset.name}
+                                whileHover={{ scale: 1.08 }}
+                                whileTap={{ scale: 0.94 }}
+                                transition={{
+                                  type: 'spring',
+                                  stiffness: 400,
+                                  damping: 20
+                                }}
                                 style={{
                                     width: '32px',
                                     height: '32px',
@@ -156,9 +235,11 @@ export default function Settings() {
                     {['12hr', '24hr'].map(fmt => {
                         const active = clockFormat === fmt;
                         return (
-                            <button
+                            <motion.button
                                 key={fmt}
                                 onClick={() => setClockFormat(fmt)}
+                                whileTap={{ scale: 0.96 }}
+                                transition={{ duration: 0.08 }}
                                 style={{
                                     padding: '8px 20px',
                                     fontFamily: tokens.typography.fontMono,
@@ -174,7 +255,7 @@ export default function Settings() {
                                 }}
                             >
                                 {fmt.toUpperCase()}
-                            </button>
+                            </motion.button>
                         );
                     })}
                 </div>
@@ -201,9 +282,14 @@ export default function Settings() {
                     ].map(wp => {
                         const selected = wallpaper === wp.id;
                         return (
-                            <div 
+                            <motion.div 
                                 key={wp.id}
                                 onClick={() => setWallpaper(wp.id)}
+                                whileHover={{
+                                  scale: 1.03,
+                                  backgroundColor: 'rgba(255,255,255,0.02)'
+                                }}
+                                transition={{ duration: 0.15 }}
                                 style={{
                                     border: selected ? `1px solid ${tokens.colors.accentBorder}` : `1px solid ${tokens.colors.borderSubtle}`,
                                     borderRadius: '2px',
@@ -232,7 +318,7 @@ export default function Settings() {
                                 }}>
                                     {wp.label}
                                 </div>
-                            </div>
+                            </motion.div>
                         );
                     })}
                 </div>
@@ -297,16 +383,44 @@ export default function Settings() {
                 </div>
             </div>
 
-            {/* SECTION 4 — DANGER ZONE */}
-            <div style={styles.marginTop}>
-                <p style={styles.sectionLabel}>// SYSTEM</p>
-                <button 
-                    className="reset-btn"
-                    style={styles.resetBtn}
-                    onClick={handleReset}
-                >
-                    RESET OS
-                </button>
+                  </>
+                )}
+
+                {activeSection === 'system' && (
+                  <>
+                    {/* SECTION 4 — DANGER ZONE */}
+                    <div>
+                        <p style={styles.sectionLabel}>// SYSTEM</p>
+                        <button 
+                            className="reset-btn"
+                            style={styles.resetBtn}
+                            onClick={handleReset}
+                        >
+                            RESET OS
+                        </button>
+                    </div>
+                    <div style={{
+                      marginTop: '16px',
+                      fontSize: '11px',
+                      fontFamily: tokens.typography.fontMono,
+                      color: tokens.colors.textTertiary,
+                    }}>
+                      // system controls coming soon
+                    </div>
+                  </>
+                )}
+
+                {activeSection === 'about' && (
+                  <div style={{
+                    fontSize: '11px',
+                    fontFamily: tokens.typography.fontMono,
+                    color: tokens.colors.textTertiary,
+                  }}>
+                    SMIT OS v1.0.0
+                  </div>
+                )}
+                  </motion.div>
+                </AnimatePresence>
             </div>
         </div>
     );

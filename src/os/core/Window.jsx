@@ -1,5 +1,5 @@
 // src/os/core/Window.jsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSystemStateStore } from '../system/systemStateStore';
 import { WindowHeader } from './WindowHeader';
 import { ResizeHandles } from './ResizeHandles';
@@ -46,8 +46,20 @@ const styles = {
 export const Window = ({ windowState, actions }) => {
     const {
         id, x, y, width, height, zIndex,
-        minimized, maximized, focused
+        minimized, maximized, focused, target
     } = windowState;
+
+    const [isMinimizing, setIsMinimizing] = useState(false);
+    const [prevMinimized, setPrevMinimized] = useState(minimized);
+
+    if (minimized && !prevMinimized) {
+        setPrevMinimized(true);
+        setIsMinimizing(true);
+        setTimeout(() => setIsMinimizing(false), 220);
+    } else if (!minimized && prevMinimized) {
+        setPrevMinimized(false);
+        setIsMinimizing(false);
+    }
 
     const isMobileMode = useSystemStateStore((state) => state.isMobileMode);
 
@@ -74,11 +86,26 @@ export const Window = ({ windowState, actions }) => {
         maximizeWindow: (wid) => {
             if (isMobileMode) return; // Already maxed
             actions.maximizeWindow(wid);
+        },
+        minimizeWindow: (wid) => {
+            // Derived state handles the unmount delay automatically
+            actions.minimizeWindow(wid);
         }
         // Close remains close, acts as "Back" naturally by removing window
     };
 
-    if (minimized) return null;
+    if (minimized && !isMinimizing) return null;
+
+    const parsedWidth = typeof width === 'number' ? width : 800;
+    const parsedHeight = typeof height === 'number' ? height : 600;
+    const centerX = x + parsedWidth / 2;
+    const centerY = Math.max(40, y) + parsedHeight / 2;
+
+    const deltaX = target ? target.x - centerX : 0;
+    const deltaY = target ? target.y - centerY : 180;
+
+    const initialX = target ? target.x - centerX : 0;
+    const initialY = target ? target.y - centerY : 40;
 
     const geometry = maximized
         ? {
@@ -130,21 +157,39 @@ export const Window = ({ windowState, actions }) => {
             transition: { duration: 0.08 }
         }
         : {
-            initial: { opacity: 0, scaleX: 1.015, y: -3 },
-            animate: { opacity: 1, scaleX: 1, y: 0 },
-            exit: { opacity: 0, scale: 0.97 },
-            transition: {
-                opacity:  { duration: 0.10 },
-                scaleX:   { duration: 0.12, ease: [0.16, 1, 0.3, 1] },
-                scale:    { duration: 0.08, ease: 'easeIn' },
-                y:        { duration: 0.12, ease: [0.16, 1, 0.3, 1] },
-            }
+            initial: target
+                ? { opacity: 0, scale: 0.7, x: initialX, y: initialY }
+                : { opacity: 0, scaleX: 1.015, y: -3 },
+            animate: isMinimizing 
+                ? { opacity: 0.4, scale: 0.75, x: deltaX, y: deltaY }
+                : { opacity: 1, scale: 1, scaleX: 1, x: 0, y: 0 },
+            exit: isMinimizing
+                ? {
+                    opacity: 0.4,
+                    scale: 0.75,
+                    x: deltaX,
+                    y: deltaY
+                }
+                : { opacity: 0, scale: 0.96 },
+            transition: isMinimizing
+                ? { duration: 0.22, ease: [0.4, 0, 0.2, 1] }
+                : (target ? { duration: 0.22, ease: [0.22, 1, 0.36, 1] } : {
+                    opacity:  { duration: 0.10 },
+                    scaleX:   { duration: 0.12, ease: [0.16, 1, 0.3, 1] },
+                    scale:    { duration: 0.08, ease: 'easeIn' },
+                    y:        { duration: 0.12, ease: [0.16, 1, 0.3, 1] },
+                })
         };
 
     return (
         <motion.div
             style={containerStyle}
             onPointerDownCapture={handleFocus}
+            onAnimationComplete={() => {
+                if (target && !minimized && actions.clearWindowTarget) {
+                    actions.clearWindowTarget(id);
+                }
+            }}
             {...animationProps}
         >
             <WindowHeader
