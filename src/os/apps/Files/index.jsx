@@ -242,15 +242,88 @@ export default function Files() {
   const openWindow = useWindowStore(state => state.openWindow);
   const [selectedFolder, setSelectedFolder] = useState('projects');
   const [selectedFile, setSelectedFile] = useState('playlistbridge');
+  const [refresh, setRefresh] = useState(0);
+
+  const paintFiles = JSON.parse(localStorage.getItem('smit-os-paint-files') || '{}');
+  const paintKeys = Object.keys(paintFiles);
+
+  const notesFiles = JSON.parse(localStorage.getItem('smit-os-notes-files') || '{}');
+  const notesKeys = Object.keys(notesFiles);
 
   const folderFiles = {
     projects: ['playlistbridge', 'rmsads', 'answerhunt', 'smitos'],
     docs:     ['resume', 'about', 'contact'],
     config:   ['stack', 'philosophy'],
+    paint:    paintKeys,
+    notes:    notesKeys,
   };
 
+  const currentFilesMap = { ...FILES };
+  paintKeys.forEach(key => {
+    currentFilesMap[key] = {
+      name: key + '.png',
+      icon: '▣',
+      size: 'canvas',
+      modified: 'now',
+      isPaint: true,
+      content: [
+        '// PAINT FILE',
+        '',
+        'This is a visual sketch saved in your local storage.',
+        'Click OPEN IN PAINT to edit this file.'
+      ]
+    };
+  });
+
+  notesKeys.forEach(key => {
+    currentFilesMap[key] = {
+      name: key + '.txt',
+      icon: '◻',
+      size: 'note',
+      modified: 'now',
+      isNote: true,
+      content: notesFiles[key].split('\n')
+    };
+  });
+
   const currentFiles = folderFiles[selectedFolder] || [];
-  const currentFile = FILES[selectedFile];
+  const currentFile = currentFilesMap[selectedFile];
+
+  const renameFile = () => {
+    const newName = window.prompt('Rename file:', selectedFile);
+    if (!newName || newName === selectedFile) return;
+
+    const storageKey = currentFile.isPaint ? 'smit-os-paint-files' : currentFile.isNote ? 'smit-os-notes-files' : null;
+    if (!storageKey) return;
+
+    const files = JSON.parse(localStorage.getItem(storageKey) || '{}');
+
+    if (files[newName]) {
+      alert('File already exists');
+      return;
+    }
+
+    files[newName] = files[selectedFile];
+    delete files[selectedFile];
+
+    localStorage.setItem(storageKey, JSON.stringify(files));
+    setSelectedFile(newName);
+    setRefresh(r => r + 1);
+  };
+
+  const deleteFile = () => {
+    if (!window.confirm('Delete this file?')) return;
+
+    const storageKey = currentFile.isPaint ? 'smit-os-paint-files' : currentFile.isNote ? 'smit-os-notes-files' : null;
+    if (!storageKey) return;
+
+    const files = JSON.parse(localStorage.getItem(storageKey) || '{}');
+    delete files[selectedFile];
+
+    localStorage.setItem(storageKey, JSON.stringify(files));
+    setSelectedFile(null);
+    setRefresh(r => r + 1);
+  };
 
   return (
     <div style={{
@@ -319,17 +392,49 @@ export default function Files() {
           color: tokens.colors.textTertiary,
           letterSpacing: '0.1em',
           borderBottom: `1px solid ${tokens.colors.borderFaint}`,
+          display: 'flex',
+          justifyContent: 'space-between',
         }}>
-          {selectedFolder}/
+          <span>{selectedFolder}/</span>
+          {selectedFolder === 'paint' && (
+            <span
+              onClick={() => openWindow('paint')}
+              style={{
+                cursor: 'pointer',
+                color: 'var(--os-accent)',
+              }}
+            >
+              [NEW]
+            </span>
+          )}
+          {selectedFolder === 'notes' && (
+            <span
+              onClick={() => openWindow('notes')}
+              style={{
+                cursor: 'pointer',
+                color: 'var(--os-accent)',
+              }}
+            >
+              [NEW]
+            </span>
+          )}
         </div>
         {currentFiles.map((fileId) => {
-          const file = FILES[fileId];
+          const file = currentFilesMap[fileId];
           if (!file) return null;
           const isSelected = selectedFile === fileId;
           return (
             <div
               key={fileId}
               onClick={() => setSelectedFile(fileId)}
+              onDoubleClick={() => {
+                if (file.isPaint) {
+                  openWindow('paint', null, { image: paintFiles[fileId] });
+                }
+                if (file.isNote) {
+                  openWindow('notes', null, { prefill: notesFiles[fileId] });
+                }
+              }}
               style={{
                 padding: '8px 12px',
                 cursor: 'pointer',
@@ -424,6 +529,88 @@ export default function Files() {
                 >
                   LIVE ↗
                 </button>
+              )}
+              {(currentFile.isPaint || currentFile.isNote) && (
+                <>
+                  <button
+                    onClick={renameFile}
+                    style={{
+                      backgroundColor: 'transparent',
+                      border: `1px solid ${tokens.colors.borderSubtle}`,
+                      borderRadius: '2px',
+                      color: tokens.colors.textSecondary,
+                      fontFamily: tokens.typography.fontMono,
+                      fontSize: '10px',
+                      padding: '2px 6px',
+                      cursor: 'pointer',
+                      marginLeft: '8px',
+                      letterSpacing: '0.05em',
+                    }}
+                  >
+                    RENAME
+                  </button>
+                  <button
+                    onClick={deleteFile}
+                    style={{
+                      backgroundColor: 'transparent',
+                      border: `1px solid rgba(248,113,113,0.3)`,
+                      borderRadius: '2px',
+                      color: '#F87171',
+                      fontFamily: tokens.typography.fontMono,
+                      fontSize: '10px',
+                      padding: '2px 6px',
+                      cursor: 'pointer',
+                      marginLeft: '8px',
+                      letterSpacing: '0.05em',
+                    }}
+                  >
+                    DELETE
+                  </button>
+                  {currentFile.isPaint && (
+                    <button
+                      onClick={() => openWindow('paint', null, { image: paintFiles[selectedFile] })}
+                      style={{
+                        backgroundColor: 'transparent',
+                        border: '1px solid var(--os-accent)',
+                        borderRadius: '2px',
+                        color: 'var(--os-accent)',
+                        fontFamily: tokens.typography.fontMono,
+                        fontSize: '10px',
+                        padding: '2px 6px',
+                        cursor: 'pointer',
+                        marginLeft: '8px',
+                        letterSpacing: '0.05em',
+                        transition: 'all 0.15s',
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(232,160,32,0.1)'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      OPEN IN PAINT ↗
+                    </button>
+                  )}
+                  {currentFile.isNote && (
+                    <button
+                      onClick={() => openWindow('notes', null, { prefill: notesFiles[selectedFile] })}
+                      style={{
+                        backgroundColor: 'transparent',
+                        border: '1px solid var(--os-accent)',
+                        borderRadius: '2px',
+                        color: 'var(--os-accent)',
+                        fontFamily: tokens.typography.fontMono,
+                        fontSize: '10px',
+                        padding: '2px 6px',
+                        cursor: 'pointer',
+                        marginLeft: '8px',
+                        letterSpacing: '0.05em',
+                        transition: 'all 0.15s',
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(232,160,32,0.1)'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      OPEN IN NOTES ↗
+                    </button>
+                  )}
+                </>
               )}
               <span style={{
                 marginLeft: 'auto',

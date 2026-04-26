@@ -455,4 +455,44 @@ export const commands = [
     }
   },
 
+  {
+    name: 'note',
+    description: 'Open notes app',
+    execute: ({ api, args }) => {
+      const text = args.join(' ');
+
+      api.openWindow('notes', null, {
+        prefill: text || ''
+      });
+
+      api.print('  Opening notes...');
+    }
+  },
+
+  {
+    name: 'paint',
+    description: 'Open paint app',
+    execute: ({ api, args }) => {
+      const files = JSON.parse(localStorage.getItem('smit-os-paint-files') || '{}');
+
+      if (args[0] === 'load') {
+        const name = args[1];
+        if (!files[name]) {
+          api.print('  File not found');
+          return;
+        }
+
+        api.openWindow('paint', null, {
+          image: files[name]
+        });
+
+        api.print('  Loading ' + name);
+        return;
+      }
+
+      api.openWindow('paint');
+      api.print('  Opening paint...');
+    }
+  },
+
 ];
