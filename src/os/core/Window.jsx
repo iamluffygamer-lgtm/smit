@@ -112,7 +112,7 @@ export const Window = ({ windowState, actions }) => {
             top: 40,
             left: 0,
             width: '100%',
-            height: 'calc(100% - 40px)',
+            height: 'calc(100% - 40px - 64px)',
             transform: 'none',
             borderRadius: 0,
             borderStyle: 'none',
@@ -203,7 +203,7 @@ export const Window = ({ windowState, actions }) => {
 
             <div style={styles.content}>
                 <div style={styles.appContainer}>
-                    <WindowContent appId={windowState.appId} />
+                    <WindowContent appId={windowState.appId} intentData={windowState.intentData} />
                 </div>
             </div>
 

@@ -6,6 +6,9 @@ import Contact from '../apps/Contact';
 import Browser from '../apps/Browser';
 import Paint from '../apps/Paint';
 import Settings from '../apps/Settings';
+import Files from '../apps/Files';
+import Music from '../apps/Music';
+import Notes from '../apps/Notes';
 import { appRegistry } from '../apps/appRegistry';
 
 // Lazy loading or direct mapping
@@ -17,9 +20,12 @@ const apps = {
     'browser': Browser,
     'paint': Paint,
     'settings': Settings,
+    'files': Files,
+    'music': Music,
+    'notes': Notes,
 };
 
-export const WindowContent = ({ appId }) => {
+export const WindowContent = ({ appId, intentData }) => {
     const Component = apps[appId];
 
     if (!Component) {
@@ -30,5 +36,5 @@ export const WindowContent = ({ appId }) => {
         );
     }
 
-    return <Component />;
+    return <Component intentData={intentData} />;
 };

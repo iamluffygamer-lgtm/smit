@@ -89,7 +89,7 @@ export const useWindowStore = create((set, get) => ({
     activeWindowId: initialState.activeWindowId,
     zIndexCounter: initialState.zIndexCounter,
 
-    openWindow: (appId, targetPos = null) => {
+    openWindow: (appId, targetPos = null, intentData = null) => {
         const { windows, zIndexCounter } = get();
         const app = appRegistry.find(a => a.id === appId);
         if (!app) return;
@@ -112,7 +112,8 @@ export const useWindowStore = create((set, get) => ({
             minimized: false,
             maximized: isMobile, // Auto-maximize
             focused: true,
-            target: targetPos
+            target: targetPos,
+            intentData
         };
 
         set({

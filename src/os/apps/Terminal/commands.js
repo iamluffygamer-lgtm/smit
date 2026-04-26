@@ -424,4 +424,35 @@ export const commands = [
     }
   },
 
+  {
+    name: 'open-url',
+    description: 'Open a URL in browser',
+    execute: ({ api, args }) => {
+      const url = args[0];
+      api.print('');
+
+      if (!url) {
+        api.print('  Usage: open-url <url>');
+        api.print('  Example: open-url playlistbridge.netlify.app');
+        api.print('');
+        return;
+      }
+
+      let finalUrl = url.trim();
+
+      // normalize URL
+      if (!finalUrl.startsWith('http')) {
+        finalUrl = 'https://' + finalUrl;
+      }
+
+      api.print('  Opening browser...');
+      api.print('  → ' + finalUrl);
+
+      // OPEN INSIDE OS (IMPORTANT)
+      api.openWindow('browser', null, { url: finalUrl });
+
+      api.print('');
+    }
+  },
+
 ];

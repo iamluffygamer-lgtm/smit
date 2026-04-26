@@ -63,7 +63,7 @@ export const appRegistry = [
         id: 'browser',
         name: 'Browser',
         icon: <IconBrowser />,
-        defaultSize: { width: 1000, height: 700 }
+        defaultSize: { width: 1000, height: 600 }
     },
     {
         id: 'notes',
