@@ -8,7 +8,9 @@ export default function Settings() {
     const { 
         themeColor, setThemeColor, 
         clockFormat, setClockFormat,
-        wallpaper, setWallpaper 
+        wallpaper, setWallpaper,
+        brightness, setBrightness,
+        uiScale, setUiScale
     } = useSettingsStore();
 
     const presets = [
@@ -388,9 +390,58 @@ export default function Settings() {
 
                 {activeSection === 'system' && (
                   <>
-                    {/* SECTION 4 — DANGER ZONE */}
+                    {/* SECTION 4 — DISPLAY */}
                     <div>
-                        <p style={styles.sectionLabel}>// SYSTEM</p>
+                        <p style={styles.sectionLabel}>// DISPLAY</p>
+                        
+                        <div style={{ marginTop: '16px' }}>
+                          <p style={{...styles.sublabel, margin: '0 0 8px 0'}}>BRIGHTNESS — {Math.round(brightness * 100)}%</p>
+                          <input
+                            type="range"
+                            min="0.5"
+                            max="1"
+                            step="0.01"
+                            value={brightness}
+                            onChange={(e) => setBrightness(parseFloat(e.target.value))}
+                            style={{ width: '100%', cursor: 'pointer' }}
+                          />
+                        </div>
+
+                        <div style={{ marginTop: '24px' }}>
+                          <p style={{...styles.sublabel, margin: '0 0 8px 0'}}>UI SCALE</p>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            {[0.9, 1.0, 1.1, 1.2].map(scale => (
+                              <button
+                                key={scale}
+                                onClick={() => setUiScale(scale)}
+                                style={{
+                                  padding: '6px 12px',
+                                  backgroundColor: uiScale === scale
+                                    ? tokens.colors.accentMuted
+                                    : 'transparent',
+                                  border: `1px solid ${
+                                    uiScale === scale
+                                      ? tokens.colors.accentBorder
+                                      : tokens.colors.borderSubtle
+                                  }`,
+                                  color: uiScale === scale
+                                    ? 'var(--os-accent)'
+                                    : tokens.colors.textTertiary,
+                                  fontFamily: tokens.typography.fontMono,
+                                  fontSize: '11px',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                {Math.round(scale * 100)}%
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                    </div>
+
+                    {/* SECTION 5 — DANGER ZONE */}
+                    <div style={{ marginTop: '32px' }}>
+                        <p style={styles.sectionLabel}>// DANGER ZONE</p>
                         <button 
                             className="reset-btn"
                             style={styles.resetBtn}
@@ -398,14 +449,6 @@ export default function Settings() {
                         >
                             RESET OS
                         </button>
-                    </div>
-                    <div style={{
-                      marginTop: '16px',
-                      fontSize: '11px',
-                      fontFamily: tokens.typography.fontMono,
-                      color: tokens.colors.textTertiary,
-                    }}>
-                      // system controls coming soon
                     </div>
                   </>
                 )}

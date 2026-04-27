@@ -373,7 +373,7 @@ export default function Files() {
               transition: 'all 0.1s',
             }}
           >
-            {folderId}/
+            {folderId}/ <span style={{ opacity: 0.5 }}>({folderFiles[folderId].length})</span>
           </div>
         ))}
       </div>
@@ -395,7 +395,7 @@ export default function Files() {
           display: 'flex',
           justifyContent: 'space-between',
         }}>
-          <span>{selectedFolder}/</span>
+          <span>{selectedFolder}/ <span style={{ opacity: 0.5 }}>({currentFiles.length})</span></span>
           {selectedFolder === 'paint' && (
             <span
               onClick={() => openWindow('paint')}
@@ -419,6 +419,16 @@ export default function Files() {
             </span>
           )}
         </div>
+        {currentFiles.length === 0 && (
+          <div style={{
+            padding: '16px 12px',
+            fontSize: '11px',
+            color: tokens.colors.textTertiary,
+            fontStyle: 'italic',
+          }}>
+            No files yet
+          </div>
+        )}
         {currentFiles.map((fileId) => {
           const file = currentFilesMap[fileId];
           if (!file) return null;

@@ -100,6 +100,8 @@ const wallpaperQuotes = {
 export const Desktop = () => {
     const openWindow = useWindowStore(state => state.openWindow);
     const wallpaper = useSettingsStore(state => state.wallpaper);
+    const brightness = useSettingsStore(state => state.brightness);
+    const uiScale = useSettingsStore(state => state.uiScale);
 
     const [ctxMenu, setCtxMenu] = useState(null);
     const [showToast, setShowToast] = useState(false);
@@ -174,6 +176,13 @@ export const Desktop = () => {
             }}
             onClick={() => setCtxMenu(null)}
         >
+            <style dangerouslySetInnerHTML={{__html: `
+              @keyframes ambientBreath {
+                0%   { opacity: 0.05; transform: scale(1); }
+                50%  { opacity: 0.08; transform: scale(1.03); }
+                100% { opacity: 0.05; transform: scale(1); }
+              }
+            `}} />
             {/* WALLPAPER LAYER */}
             <AnimatePresence mode="wait">
                 <motion.div
@@ -195,8 +204,48 @@ export const Desktop = () => {
                 />
             </AnimatePresence>
 
+            {/* ACCENT GLOW LAYER */}
+            <div style={{
+              position: 'fixed',
+              inset: 0,
+              pointerEvents: 'none',
+              zIndex: 1,
+              background: `
+                radial-gradient(
+                  circle at 50% 40%,
+                  var(--os-accent) 0%,
+                  transparent 60%
+                )
+              `,
+              opacity: 0.06,
+              mixBlendMode: 'screen',
+              animation: 'ambientBreath 6s ease-in-out infinite',
+            }} />
+
+            {/* VIGNETTE OVERLAY */}
+            <div style={{
+              position: 'fixed',
+              inset: 0,
+              pointerEvents: 'none',
+              zIndex: 2,
+              background: `
+                radial-gradient(
+                  circle at center,
+                  transparent 60%,
+                  rgba(0,0,0,0.35) 100%
+                )
+              `,
+            }} />
+
             {/* UI LAYER */}
-            <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%' }}>
+            <div style={{ 
+                position: 'relative', 
+                zIndex: 3, 
+                transform: `scale(${uiScale})`,
+                transformOrigin: 'top left',
+                width: `${100 / uiScale}%`,
+                height: `${100 / uiScale}%`,
+            }}>
                 <div style={styles.scanline} />
 
 
@@ -326,6 +375,17 @@ export const Desktop = () => {
                 )}
             </AnimatePresence>
             </div>
+
+            {/* BRIGHTNESS OVERLAY */}
+            <div style={{
+              position: 'fixed',
+              inset: 0,
+              backgroundColor: 'black',
+              opacity: 1 - brightness,
+              pointerEvents: 'none',
+              zIndex: 9999,
+              transition: 'opacity 0.2s ease',
+            }} />
         </div>
     );
 };

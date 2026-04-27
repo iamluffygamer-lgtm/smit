@@ -1,8 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { aboutData } from './about.data.js';
 import { tokens } from '../../styles/tokens';
 
 export const About = () => {
+    const [visibleSections, setVisibleSections] = useState([]);
+    const [hoveredStat, setHoveredStat] = useState(null);
+    const [hoveredSkill, setHoveredSkill] = useState(null);
+
+    useEffect(() => {
+      const sections = ['header', 'headline', 'stats', 'bio', 'skills'];
+
+      sections.forEach((section, index) => {
+        setTimeout(() => {
+          setVisibleSections(prev => [...prev, section]);
+        }, index * 150);
+      });
+    }, []);
+
+    const revealStyle = (key) => ({
+      opacity: visibleSections.includes(key) ? 1 : 0,
+      transform: visibleSections.includes(key)
+        ? 'translateY(0px)'
+        : 'translateY(12px)',
+      transition: 'opacity 0.4s ease, transform 0.4s ease',
+    });
+
     // Base inline styles matching user tokens logic visually
     const styles = {
         container: {
@@ -160,30 +182,45 @@ export const About = () => {
 
             <div className="about-container" style={styles.container}>
                 {/* SECTION 1 — HEADER */}
-                <div style={styles.headerLabel}>// ABOUT</div>
-                <div style={styles.name}>{aboutData.name}</div>
-                <div style={styles.titleLine}>{aboutData.title}</div>
-                <div style={styles.locationHandle}>
-                    {aboutData.location} | {aboutData.handle} | {aboutData.email}
+                <div style={revealStyle('header')}>
+                    <div style={styles.headerLabel}>// ABOUT</div>
+                    <div style={styles.name}>{aboutData.name}</div>
+                    <div style={styles.titleLine}>{aboutData.title}</div>
+                    <div style={styles.locationHandle}>
+                        {aboutData.location} | {aboutData.handle} | {aboutData.email}
+                    </div>
+                    <hr style={styles.hr} />
                 </div>
-                <hr style={styles.hr} />
 
                 {/* SECTION 2 — HEADLINE */}
-                <div style={styles.headlineContainer}>
+                <div style={{ ...styles.headlineContainer, ...revealStyle('headline') }}>
                     <p style={styles.headline}>{aboutData.headline}</p>
                 </div>
 
                 {/* SECTION 3 — STATS ROW */}
-                <div style={styles.statsRow}>
+                <div style={{ ...styles.statsRow, ...revealStyle('stats') }}>
                     {aboutData.stats.map((stat, idx) => (
                         <div
                             key={idx}
+                            onMouseEnter={() => setHoveredStat(idx)}
+                            onMouseLeave={() => setHoveredStat(null)}
                             style={{
                                 ...styles.statBox,
-                                ...(idx === aboutData.stats.length - 1 ? { borderRight: 'none', marginRight: 0 } : {})
+                                ...(idx === aboutData.stats.length - 1 ? { borderRight: 'none', marginRight: 0 } : {}),
+                                transform: hoveredStat === idx ? 'scale(1.05)' : 'scale(1)',
+                                transition: 'transform 0.12s ease-out',
                             }}
                         >
-                            <div style={styles.statValue}>{stat.value}</div>
+                            <div style={{
+                              ...styles.statValue,
+                              color: hoveredStat === idx
+                                ? 'var(--os-accent)'
+                                : tokens.colors.accent,
+                              textShadow: hoveredStat === idx
+                                ? '0 0 8px rgba(232,160,32,0.4)'
+                                : 'none',
+                              transition: 'color 0.12s ease-out, text-shadow 0.12s ease-out',
+                            }}>{stat.value}</div>
                             <div style={styles.statLabel}>{stat.label}</div>
                             <div style={styles.statSub}>{stat.sub}</div>
                         </div>
@@ -191,16 +228,26 @@ export const About = () => {
                 </div>
 
                 {/* SECTION 4 — BIO */}
-                <div style={styles.bioSection}>
-                    {aboutData.bio.map((paragraph, idx) => (
-                        <p key={idx} style={styles.bioParagraph}>
-                            {paragraph}
-                        </p>
-                    ))}
+                <div style={{ ...styles.bioSection, ...revealStyle('bio') }}>
+                    {aboutData.bio.map((paragraph, idx) => {
+                        const highlight = (text) => {
+                            return text
+                                .replace('rank #1 on Google', '<span style="color: var(--os-accent)">rank #1 on Google</span>')
+                                .replace('generate live AdSense revenue', '<span style="color: var(--os-accent)">generate live AdSense revenue</span>');
+                        };
+
+                        return (
+                            <p 
+                                key={idx} 
+                                style={styles.bioParagraph}
+                                dangerouslySetInnerHTML={{ __html: highlight(paragraph) }}
+                            />
+                        );
+                    })}
                 </div>
 
                 {/* SECTION 5 — SKILLS */}
-                <div style={styles.skillsSection}>
+                <div style={{ ...styles.skillsSection, ...revealStyle('skills') }}>
                     <div style={styles.skillsMainLabel}>// CORE CAPABILITIES</div>
                     {aboutData.skills.map((categoryGroup, idx) => (
                         <div key={idx} style={styles.skillCategoryGroup}>
@@ -209,7 +256,19 @@ export const About = () => {
                             </div>
                             <div style={styles.skillsItemsGroup}>
                                 {categoryGroup.items.map((item, itemIdx) => (
-                                    <div key={itemIdx} style={styles.skillPill}>
+                                    <div 
+                                        key={itemIdx} 
+                                        onMouseEnter={() => setHoveredSkill(item)}
+                                        onMouseLeave={() => setHoveredSkill(null)}
+                                        style={{
+                                            ...styles.skillPill,
+                                            transform: hoveredSkill === item ? 'scale(1.05)' : 'scale(1)',
+                                            boxShadow: hoveredSkill === item
+                                                ? '0 0 6px rgba(232,160,32,0.25)'
+                                                : 'none',
+                                            transition: 'all 0.12s ease'
+                                        }}
+                                    >
                                         {item}
                                     </div>
                                 ))}
