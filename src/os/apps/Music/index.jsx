@@ -1,13 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { tokens } from '../../styles/tokens';
+import { useWindowStore } from '../../store/windowStore';
 
 export default function Music() {
   const [input, setInput] = useState('');
   const [tracks, setTracks] = useState([]);
+  const [currentTrack, setCurrentTrack] = useState(null);
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem('music-history') || '[]');
+    setHistory(saved);
+  }, []);
 
   const handleParse = () => {
     const parsed = input.split('\n').filter(Boolean);
     setTracks(parsed);
+  };
+
+  const resolveTrack = (track) => {
+    return `https://www.youtube.com/embed?listType=search&list=${encodeURIComponent(track)}`;
+  };
+
+  const playTrack = (track) => {
+    const url = resolveTrack(track);
+    setCurrentTrack({ name: track, url });
+
+    const updatedHistory = [track, ...history.filter(t => t !== track).slice(0, 9)];
+    setHistory(updatedHistory);
+    localStorage.setItem('music-history', JSON.stringify(updatedHistory));
   };
 
   return (
@@ -39,9 +60,9 @@ export default function Music() {
           fontWeight: 600,
           marginBottom: '4px',
         }}>
-          Playlist Viewer
+          PlaylistBridge Player
         </div>
-        
+
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -81,10 +102,42 @@ export default function Music() {
         </button>
       </div>
 
+      {/* PLAYER UI */}
+      {currentTrack && (
+        <div style={{
+          margin: '12px 20px',
+          border: `1px solid ${tokens.colors.borderSubtle}`,
+          backgroundColor: tokens.colors.bgElevated,
+          borderRadius: '2px',
+          overflow: 'hidden',
+        }}>
+          <div style={{
+            padding: '8px',
+            fontSize: '11px',
+            color: tokens.colors.textSecondary,
+            borderBottom: `1px solid ${tokens.colors.borderSubtle}`,
+          }}>
+            NOW PLAYING — {currentTrack.name}
+          </div>
+
+          <iframe
+            src={currentTrack.url}
+            title="YouTube Audio Player"
+            style={{
+              width: '100%',
+              height: '200px',
+              border: 'none',
+              backgroundColor: '#000',
+            }}
+            allow="autoplay"
+          />
+        </div>
+      )}
+
       {/* TRACK LIST */}
       {tracks.length > 0 && (
         <div style={{ padding: '0 20px 12px' }}>
-           <div style={{
+          <div style={{
             fontSize: '10px',
             color: tokens.colors.textTertiary,
             marginBottom: '6px',
@@ -95,14 +148,51 @@ export default function Music() {
           {tracks.map((track, i) => (
             <div
               key={i}
+              onClick={() => playTrack(track)}
               style={{
                 padding: '6px 10px',
+                cursor: 'pointer',
+                backgroundColor:
+                  currentTrack?.name === track
+                    ? tokens.colors.bgElevated
+                    : 'transparent',
                 borderBottom: `1px solid ${tokens.colors.borderFaint}`,
                 fontSize: '11px',
-                color: tokens.colors.textSecondary,
+                color: currentTrack?.name === track ? 'var(--os-accent)' : tokens.colors.textSecondary,
+                transition: 'background-color 0.1s',
               }}
             >
               {i + 1}. {track}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* HISTORY SECTION */}
+      {history.length > 0 && (
+        <div style={{ padding: '12px 20px', marginTop: 'auto' }}>
+          <div style={{
+            fontSize: '10px',
+            color: tokens.colors.textTertiary,
+            marginBottom: '6px',
+          }}>
+            RECENTLY PLAYED
+          </div>
+
+          {history.map((track, i) => (
+            <div
+              key={i}
+              onClick={() => playTrack(track)}
+              style={{
+                fontSize: '10px',
+                cursor: 'pointer',
+                padding: '4px 0',
+                color: tokens.colors.textTertiary,
+              }}
+              onMouseEnter={(e) => e.target.style.color = 'var(--os-accent)'}
+              onMouseLeave={(e) => e.target.style.color = tokens.colors.textTertiary}
+            >
+              {track}
             </div>
           ))}
         </div>
