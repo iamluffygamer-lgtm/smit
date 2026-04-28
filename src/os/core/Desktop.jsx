@@ -12,6 +12,9 @@ import { IconTerminal } from '../icons/IconTerminal';
 import { IconProjects } from '../icons/IconProjects';
 import { IconAbout } from '../icons/IconAbout';
 import { IconSettings } from '../icons/IconSettings';
+import { IconFiles } from '../icons/IconFiles';
+import { IconBrowser } from '../icons/IconBrowser';
+import { IconNotes } from '../icons/IconNotes';
 
 const styles = {
     wallpaper: {
@@ -51,6 +54,7 @@ const styles = {
         position: 'absolute',
         inset: 0,
         zIndex: 1,
+        pointerEvents: 'none',
     }
 };
 
@@ -89,16 +93,106 @@ const MenuItem = ({ item, onClick }) => {
 };
 
 const wallpaperQuotes = {
-  walter:    { line1: '> I am not in danger.',      line2: '  I am the danger.' },
-  peter:     { line1: '> logic failed',              line2: '  successfully.' },
-  sheldon:   { line1: "> I'm not crazy.",            line2: '  my mother had me tested.' },
-  luffy:     { line1: "> I don't want to conquer",   line2: '  anything. the most free person wins.' },
-  pennywise: { line1: "> You'll float too.",         line2: '  they all float down here.' },
-  roger:     { line1: "> I've lived a thousand",     line2: '  lives. none were yours.' },
+    walter: { line1: '> I am not in danger.', line2: '  I am the danger.' },
+    peter: { line1: '> logic failed', line2: '  successfully.' },
+    sheldon: { line1: "> I'm not crazy.", line2: '  my mother had me tested.' },
+    luffy: { line1: "> I don't want to conquer", line2: '  anything. the most free person wins.' },
+    pennywise: { line1: "> You'll float too.", line2: '  they all float down here.' },
+    roger: { line1: "> I've lived a thousand", line2: '  lives. none were yours.' },
 };
+
+const DesktopIcon = ({ icon, openWindow }) => {
+  const [lastClick, setLastClick] = React.useState(0);
+  const [hovered, setHovered] = React.useState(false);
+
+  const handleClick = () => {
+    const now = Date.now();
+
+    if (now - lastClick < 300) {
+      openWindow(icon.id);
+      setLastClick(0);
+      return;
+    }
+
+    setLastClick(now);
+  };
+
+  return (
+    <div
+      onClick={handleClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        width: '68px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        cursor: 'pointer',
+        userSelect: 'none',
+      }}
+    >
+      {/* ICON BOX */}
+      <div style={{
+        width: '46px',
+        height: '46px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: '6px',
+        backgroundColor: hovered
+          ? 'rgba(232,160,32,0.08)'
+          : 'rgba(255,255,255,0.02)',
+        border: hovered
+          ? '1px solid var(--os-accent)'
+          : '1px solid transparent',
+        transform: hovered ? 'scale(1.08)' : 'scale(1)',
+        transition: 'all 0.12s ease',
+        color: tokens.colors.textPrimary,
+      }}>
+        {icon.icon}
+      </div>
+
+      {/* LABEL */}
+      <div style={{
+        marginTop: '6px',
+        fontSize: '11px',
+        color: tokens.colors.textSecondary,
+        fontFamily: tokens.typography.fontMono,
+        textAlign: 'center',
+        lineHeight: '1.2',
+      }}>
+        {icon.label}
+      </div>
+    </div>
+  );
+};
+
+const DESKTOP_ICONS = [
+  {
+    id: 'files',
+    label: 'Files',
+    icon: <IconFiles size={20} />,
+  },
+  {
+    id: 'browser',
+    label: 'Browser',
+    icon: <IconBrowser size={20} />,
+  },
+  {
+    id: 'notes',
+    label: 'Notes',
+    icon: <IconNotes size={20} />,
+  },
+  {
+    id: 'settings',
+    label: 'Settings',
+    icon: <IconSettings size={20} />,
+  },
+];
 
 export const Desktop = () => {
     const openWindow = useWindowStore(state => state.openWindow);
+    const hasFullscreenWindow = useWindowStore(state => state.windows.some(w => w.maximized && !w.minimized));
     const wallpaper = useSettingsStore(state => state.wallpaper);
     const brightness = useSettingsStore(state => state.brightness);
     const uiScale = useSettingsStore(state => state.uiScale);
@@ -122,11 +216,11 @@ export const Desktop = () => {
     }, [showToast]);
 
     const menuItems = [
-        { icon: <IconTerminal size={13} />, label: 'Open Terminal',      appId: 'terminal' },
-        { icon: <IconProjects size={13} />, label: 'Open Projects',      appId: 'projects' },
-        { icon: <IconAbout size={13} />,    label: 'About This System',  appId: 'about'    },
+        { icon: <IconTerminal size={13} />, label: 'Open Terminal', appId: 'terminal' },
+        { icon: <IconProjects size={13} />, label: 'Open Projects', appId: 'projects' },
+        { icon: <IconAbout size={13} />, label: 'About This System', appId: 'about' },
         { divider: true },
-        { icon: <IconSettings size={13} />, label: 'Settings',           appId: 'settings' },
+        { icon: <IconSettings size={13} />, label: 'Settings', appId: 'settings' },
     ];
 
     let wallpaperStyle = { ...styles.wallpaper };
@@ -168,7 +262,7 @@ export const Desktop = () => {
     }
 
     return (
-        <div 
+        <div
             style={{ position: 'relative', width: '100vw', height: '100vh', overflow: 'hidden', backgroundColor: tokens.colors.bgCanvas, userSelect: 'none' }}
             onContextMenu={(e) => {
                 e.preventDefault();
@@ -176,13 +270,6 @@ export const Desktop = () => {
             }}
             onClick={() => setCtxMenu(null)}
         >
-            <style dangerouslySetInnerHTML={{__html: `
-              @keyframes ambientBreath {
-                0%   { opacity: 0.05; transform: scale(1); }
-                50%  { opacity: 0.08; transform: scale(1.03); }
-                100% { opacity: 0.05; transform: scale(1); }
-              }
-            `}} />
             {/* WALLPAPER LAYER */}
             <AnimatePresence mode="wait">
                 <motion.div
@@ -204,43 +291,10 @@ export const Desktop = () => {
                 />
             </AnimatePresence>
 
-            {/* ACCENT GLOW LAYER */}
-            <div style={{
-              position: 'fixed',
-              inset: 0,
-              pointerEvents: 'none',
-              zIndex: 1,
-              background: `
-                radial-gradient(
-                  circle at 50% 40%,
-                  var(--os-accent) 0%,
-                  transparent 60%
-                )
-              `,
-              opacity: 0.06,
-              mixBlendMode: 'screen',
-              animation: 'ambientBreath 6s ease-in-out infinite',
-            }} />
-
-            {/* VIGNETTE OVERLAY */}
-            <div style={{
-              position: 'fixed',
-              inset: 0,
-              pointerEvents: 'none',
-              zIndex: 2,
-              background: `
-                radial-gradient(
-                  circle at center,
-                  transparent 60%,
-                  rgba(0,0,0,0.35) 100%
-                )
-              `,
-            }} />
-
             {/* UI LAYER */}
-            <div style={{ 
-                position: 'relative', 
-                zIndex: 3, 
+            <div style={{
+                position: 'relative',
+                zIndex: 3,
                 transform: `scale(${uiScale})`,
                 transformOrigin: 'top left',
                 width: `${100 / uiScale}%`,
@@ -248,143 +302,162 @@ export const Desktop = () => {
             }}>
                 <div style={styles.scanline} />
 
-
-            <CommandPalette openWindow={openWindow} />
-            <div style={styles.topBar}>
-                <Clock />
-                <div style={{ width: 16 }} />
-                <SystemTray />
-            </div>
-
-            <div style={styles.windowLayer}>
-                <WindowManager />
-            </div>
-            
-            <Dock />
-
-            <AnimatePresence>
-                {ctxMenu && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ duration: 0.08 }}
-                        style={{
-                            position: 'fixed',
-                            left: Math.min(ctxMenu.x, window.innerWidth - 180),
-                            top:  Math.min(ctxMenu.y, window.innerHeight - 180),
-                            zIndex: 99999,
-                            backgroundColor: tokens.colors.bgElevated,
-                            border: `1px solid ${tokens.colors.borderDefault}`,
-                            borderRadius: '2px',
-                            boxShadow: tokens.shadowLg,
-                            padding: '4px 0',
-                            minWidth: '168px',
-                            transformOrigin: 'top left',
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                        onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                    >
-                        {menuItems.map((item, i) =>
-                            item.divider ? (
-                                <div key={i} style={{
-                                    height: '1px',
-                                    backgroundColor: tokens.colors.borderSubtle,
-                                    margin: '4px 0',
-                                }} />
-                            ) : (
-                                <MenuItem
-                                    key={i}
-                                    item={item}
-                                    onClick={() => {
-                                        openWindow(item.appId);
-                                        setCtxMenu(null);
-                                    }}
-                                />
-                            )
-                        )}
-                    </motion.div>
+                {!hasFullscreenWindow && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '90px',
+                    left: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '18px',
+                    zIndex: 0,
+                  }}>
+                    {DESKTOP_ICONS.map(icon => (
+                      <DesktopIcon
+                        key={icon.id}
+                        icon={icon}
+                        openWindow={openWindow}
+                      />
+                    ))}
+                  </div>
                 )}
-            </AnimatePresence>
 
-            <AnimatePresence>
-                {showToast && (
-                    <motion.div
-                        initial={{ opacity: 0, x: 80 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 80 }}
-                        transition={{ duration: 0.3, ease: 'easeOut' }}
-                        style={{
-                            position: 'fixed',
-                            bottom: '80px',
-                            right: '16px',
-                            zIndex: 99997,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '12px',
-                            padding: '12px 16px',
-                            backgroundColor: tokens.colors.bgElevated,
-                            border: `1px solid ${tokens.colors.borderDefault}`,
-                            borderRadius: '2px',
-                            boxShadow: tokens.shadowMd,
-                            minWidth: '260px',
-                            maxWidth: '320px',
-                        }}
-                    >
+                <CommandPalette openWindow={openWindow} />
+                <div style={styles.topBar}>
+                    <Clock />
+                    <div style={{ width: 16 }} />
+                    <SystemTray />
+                </div>
+
+                <div style={styles.windowLayer}>
+                    <WindowManager />
+                </div>
+
+                <Dock />
+
+                <AnimatePresence>
+                    {ctxMenu && (
                         <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.08 }}
                             style={{
-                                width: '6px', height: '6px',
-                                borderRadius: '50%',
-                                backgroundColor: 'var(--os-accent)',
-                                flexShrink: 0,
+                                position: 'fixed',
+                                left: Math.min(ctxMenu.x, window.innerWidth - 180),
+                                top: Math.min(ctxMenu.y, window.innerHeight - 180),
+                                zIndex: 99999,
+                                backgroundColor: tokens.colors.bgElevated,
+                                border: `1px solid ${tokens.colors.borderDefault}`,
+                                borderRadius: '2px',
+                                boxShadow: tokens.shadowLg,
+                                padding: '4px 0',
+                                minWidth: '168px',
+                                transformOrigin: 'top left',
                             }}
-                            animate={{ opacity: [1, 0.4, 1] }}
-                            transition={{ duration: 1.5, repeat: Infinity }}
-                        />
-                        <div style={{ flex: 1 }}>
-                            <div style={{
-                                fontSize: '11px',
-                                fontFamily: tokens.typography.fontMono,
-                                color: 'var(--os-accent)',
-                                marginBottom: '2px',
-                            }}>
-                                visitor@smit-os
-                            </div>
-                            <div style={{
-                                fontSize: '11px',
-                                fontFamily: tokens.typography.fontMono,
-                                color: tokens.colors.textTertiary,
-                            }}>
-                                type 'help' in terminal to explore
-                            </div>
-                        </div>
-                        <div
-                            onClick={() => {
-                                setToastLeaving(true);
-                                setTimeout(() => setShowToast(false), 300);
-                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                        >
+                            {menuItems.map((item, i) =>
+                                item.divider ? (
+                                    <div key={i} style={{
+                                        height: '1px',
+                                        backgroundColor: tokens.colors.borderSubtle,
+                                        margin: '4px 0',
+                                    }} />
+                                ) : (
+                                    <MenuItem
+                                        key={i}
+                                        item={item}
+                                        onClick={() => {
+                                            openWindow(item.appId);
+                                            setCtxMenu(null);
+                                        }}
+                                    />
+                                )
+                            )}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                <AnimatePresence>
+                    {showToast && (
+                        <motion.div
+                            initial={{ opacity: 0, x: 80 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 80 }}
+                            transition={{ duration: 0.3, ease: 'easeOut' }}
                             style={{
-                                color: tokens.colors.textDisabled,
-                                fontSize: '18px',
-                                cursor: 'pointer',
-                                lineHeight: 1,
-                                padding: '0 2px',
+                                position: 'fixed',
+                                bottom: '80px',
+                                right: '16px',
+                                zIndex: 99997,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '12px',
+                                padding: '12px 16px',
+                                backgroundColor: tokens.colors.bgElevated,
+                                border: `1px solid ${tokens.colors.borderDefault}`,
+                                borderRadius: '2px',
+                                boxShadow: tokens.shadowMd,
+                                minWidth: '260px',
+                                maxWidth: '320px',
                             }}
-                        >×</div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                        >
+                            <motion.div
+                                style={{
+                                    width: '6px', height: '6px',
+                                    borderRadius: '50%',
+                                    backgroundColor: 'var(--os-accent)',
+                                    flexShrink: 0,
+                                }}
+                                animate={{ opacity: [1, 0.4, 1] }}
+                                transition={{ duration: 1.5, repeat: Infinity }}
+                            />
+                            <div style={{ flex: 1 }}>
+                                <div style={{
+                                    fontSize: '11px',
+                                    fontFamily: tokens.typography.fontMono,
+                                    color: 'var(--os-accent)',
+                                    marginBottom: '2px',
+                                }}>
+                                    visitor@smit-os
+                                </div>
+                                <div style={{
+                                    fontSize: '11px',
+                                    fontFamily: tokens.typography.fontMono,
+                                    color: tokens.colors.textTertiary,
+                                }}>
+                                    type 'help' in terminal to explore
+                                </div>
+                            </div>
+                            <div
+                                onClick={() => {
+                                    setToastLeaving(true);
+                                    setTimeout(() => setShowToast(false), 300);
+                                }}
+                                style={{
+                                    color: tokens.colors.textDisabled,
+                                    fontSize: '18px',
+                                    cursor: 'pointer',
+                                    lineHeight: 1,
+                                    padding: '0 2px',
+                                }}
+                            >×</div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
 
             {/* BRIGHTNESS OVERLAY */}
             <div style={{
-              position: 'fixed',
-              inset: 0,
-              backgroundColor: 'black',
-              opacity: 1 - brightness,
-              pointerEvents: 'none',
-              zIndex: 9999,
-              transition: 'opacity 0.2s ease',
+                position: 'fixed',
+                inset: 0,
+                backgroundColor: 'black',
+                opacity: 1 - brightness,
+                pointerEvents: 'none',
+                zIndex: 9999,
+                transition: 'opacity 0.2s ease',
             }} />
         </div>
     );

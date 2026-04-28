@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { appRegistry } from '../apps/appRegistry';
 import { projects } from '../apps/Projects/projects.data';
 import { tokens } from '../styles/tokens';
+import { useSettingsStore } from '../store/settingsStore';
 import { IconProjects } from '../icons/IconProjects';
 import { IconContact } from '../icons/IconContact';
 import { IconAbout } from '../icons/IconAbout';
@@ -11,6 +12,9 @@ export const CommandPalette = ({ openWindow }) => {
     const [query, setQuery] = useState('');
     const [selectedIndex, setSelectedIndex] = useState(0);
     const inputRef = useRef(null);
+
+    const setBrightness = useSettingsStore(s => s.setBrightness);
+    const setUiScale = useSettingsStore(s => s.setUiScale);
 
     useEffect(() => {
         const handleGlobalKeyDown = (e) => {
@@ -30,6 +34,62 @@ export const CommandPalette = ({ openWindow }) => {
             setTimeout(() => inputRef.current?.focus(), 10);
         }
     }, [isOpen]);
+
+    const parseCommand = (query) => {
+        const q = query.toLowerCase().trim();
+
+        // brightness command
+        if (q.startsWith('brightness')) {
+            const value = parseInt(q.split(' ')[1]);
+            if (!isNaN(value)) {
+                return {
+                    label: `Set Brightness → ${value}%`,
+                    sub: 'System display',
+                    type: 'command',
+                    icon: <div style={{ fontSize: '14px', color: 'var(--os-accent)' }}>⚙</div>,
+                    action: () => {
+                        setBrightness(Math.min(1, Math.max(0.5, value / 100)));
+                    }
+                };
+            }
+        }
+
+        // scale command
+        if (q.startsWith('scale')) {
+            const value = parseInt(q.split(' ')[1]);
+            if (!isNaN(value)) {
+                return {
+                    label: `Set Scale → ${value}%`,
+                    sub: 'UI scaling',
+                    type: 'command',
+                    icon: <div style={{ fontSize: '14px', color: 'var(--os-accent)' }}>⤢</div>,
+                    action: () => {
+                        setUiScale(value / 100);
+                    }
+                };
+            }
+        }
+
+        // open url command
+        if (q.startsWith('open ')) {
+            const url = q.replace('open ', '').trim();
+            if (url) {
+                return {
+                    label: `Open → ${url}`,
+                    sub: 'In browser',
+                    type: 'command',
+                    icon: <IconProjects size={16} />,
+                    action: () => {
+                        openWindow('browser', null, {
+                            url: url.startsWith('http') ? url : `https://${url}`
+                        });
+                    }
+                };
+            }
+        }
+
+        return null;
+    };
 
     const buildResults = () => {
         const results = [];
@@ -100,10 +160,17 @@ export const CommandPalette = ({ openWindow }) => {
         if (!query) return results.slice(0, 8);
 
         const lowerQuery = query.toLowerCase();
-        return results.filter(r => 
+        const filteredResults = results.filter(r => 
             r.label.toLowerCase().includes(lowerQuery) || 
             r.sub.toLowerCase().includes(lowerQuery)
-        ).slice(0, 8);
+        );
+
+        const commandResult = parseCommand(query);
+        if (commandResult) {
+            return [commandResult, ...filteredResults].slice(0, 8);
+        }
+
+        return filteredResults.slice(0, 8);
     };
 
     const results = buildResults();
@@ -125,6 +192,8 @@ export const CommandPalette = ({ openWindow }) => {
         } else if (e.key === 'Enter') {
             if (results[selectedIndex]) {
                 results[selectedIndex].action();
+                setIsOpen(false);
+                setQuery('');
             }
             e.preventDefault();
         }
@@ -316,7 +385,7 @@ export const CommandPalette = ({ openWindow }) => {
                                 <React.Fragment key={`${r.type}-${r.label}`}>
                                     {showDivider && (
                                         <div style={styles.sectionDivider}>
-                                            {r.type === 'app' ? 'APPS' : r.type === 'project' ? 'PROJECTS' : 'ACTIONS'}
+                                            {r.type === 'command' ? 'COMMANDS' : r.type === 'app' ? 'APPS' : r.type === 'project' ? 'PROJECTS' : 'ACTIONS'}
                                         </div>
                                     )}
                                     <div 
@@ -331,9 +400,9 @@ export const CommandPalette = ({ openWindow }) => {
                                         </div>
                                         <div style={{
                                             ...styles.badge, 
-                                            color: r.type === 'project' ? tokens.colors.accent : tokens.colors.textTertiary
+                                            color: (r.type === 'project' || r.type === 'command') ? tokens.colors.accent : tokens.colors.textTertiary
                                         }}>
-                                            {r.type === 'app' ? 'APP' : r.type === 'project' ? 'PROJECT ↗' : 'ACTION'}
+                                            {r.type === 'command' ? 'CMD' : r.type === 'app' ? 'APP' : r.type === 'project' ? 'PROJECT ↗' : 'ACTION'}
                                         </div>
                                     </div>
                                 </React.Fragment>

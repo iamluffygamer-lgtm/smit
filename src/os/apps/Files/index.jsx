@@ -20,7 +20,7 @@ const FILE_SYSTEM = {
   },
   docs: {
     name: 'docs/',
-    children: ['resume', 'about', 'contact'],
+    children: ['resume', 'about', 'contact', 'playlistbridge_pdf', 'rms_pdf'],
   },
   config: {
     name: 'config/',
@@ -236,6 +236,22 @@ const FILES = {
       'You\'re hiring a builder.',
     ],
   },
+  playlistbridge_pdf: {
+    name: 'playlistbridge.pdf',
+    icon: '📄',
+    size: 'PDF',
+    modified: 'Jun 2025',
+    type: 'pdf',
+    url: '/docs/playlistbridge.pdf',
+  },
+  rms_pdf: {
+    name: 'rms-ads.pdf',
+    icon: '📄',
+    size: 'PDF',
+    modified: 'Apr 2026',
+    type: 'pdf',
+    url: '/docs/rms-ads.pdf',
+  },
 };
 
 export default function Files() {
@@ -252,7 +268,7 @@ export default function Files() {
 
   const folderFiles = {
     projects: ['playlistbridge', 'rmsads', 'answerhunt', 'smitos'],
-    docs:     ['resume', 'about', 'contact'],
+    docs:     ['resume', 'about', 'contact', 'playlistbridge_pdf', 'rms_pdf'],
     config:   ['stack', 'philosophy'],
     paint:    paintKeys,
     notes:    notesKeys,
@@ -478,6 +494,15 @@ export default function Files() {
                 }}>
                   {file.name}
                 </span>
+                {file.type === 'pdf' && (
+                  <span style={{
+                    fontSize: '9px',
+                    color: tokens.colors.textTertiary,
+                    marginLeft: 'auto'
+                  }}>
+                    PDF
+                  </span>
+                )}
               </div>
               <div style={{
                 fontSize: '10px',
@@ -630,29 +655,63 @@ export default function Files() {
                 {currentFile.size} · modified {currentFile.modified}
               </span>
             </div>
-            {currentFile.content.map((line, i) => (
-              <div
-                key={i}
-                style={{
-                  fontSize: '12px',
-                  lineHeight: '1.8',
-                  color: line.startsWith('#')
-                    ? tokens.colors.textPrimary
-                    : line.startsWith('//')
-                    ? 'var(--os-accent)'
-                    : line.startsWith('→')
-                    ? tokens.colors.textSecondary
-                    : line.startsWith('[')
-                    ? 'var(--os-accent)'
-                    : line === ''
-                    ? tokens.colors.textTertiary
-                    : tokens.colors.textSecondary,
-                  fontWeight: line.startsWith('#') ? 600 : 400,
-                }}
-              >
-                {line || '\u00A0'}
+            {currentFile.type === 'pdf' ? (
+              <div style={{
+                backgroundColor: tokens.colors.bgCanvas,
+                padding: '8px',
+                borderRadius: '6px',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                marginTop: '16px',
+              }}>
+                <div style={{
+                  fontSize: '10px',
+                  color: tokens.colors.textTertiary,
+                  marginBottom: '6px',
+                  display: 'flex',
+                  gap: '12px',
+                }}>
+                  <span>TYPE: PDF</span>
+                  <span>PROJECT: {currentFile.name.replace('.pdf','')}</span>
+                </div>
+                <iframe
+                  src={`${currentFile.url}#toolbar=0`}
+                  title={currentFile.name}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    border: 'none',
+                    borderRadius: '4px',
+                    backgroundColor: '#fff',
+                  }}
+                />
               </div>
-            ))}
+            ) : (
+              currentFile.content.map((line, i) => (
+                <div
+                  key={i}
+                  style={{
+                    fontSize: '12px',
+                    lineHeight: '1.8',
+                    color: line.startsWith('#')
+                      ? tokens.colors.textPrimary
+                      : line.startsWith('//')
+                      ? 'var(--os-accent)'
+                      : line.startsWith('→')
+                      ? tokens.colors.textSecondary
+                      : line.startsWith('[')
+                      ? 'var(--os-accent)'
+                      : line === ''
+                      ? tokens.colors.textTertiary
+                      : tokens.colors.textSecondary,
+                    fontWeight: line.startsWith('#') ? 600 : 400,
+                  }}
+                >
+                  {line || '\u00A0'}
+                </div>
+              ))
+            )}
           </>
         ) : (
           <div style={{
