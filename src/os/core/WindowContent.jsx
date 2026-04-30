@@ -9,6 +9,7 @@ import Settings from '../apps/Settings';
 import Files from '../apps/Files';
 import Music from '../apps/Music';
 import Notes from '../apps/Notes';
+import Games from '../apps/Games';
 import { appRegistry } from '../apps/appRegistry';
 
 // Lazy loading or direct mapping
@@ -23,6 +24,7 @@ const apps = {
     'files': Files,
     'music': Music,
     'notes': Notes,
+    'games': Games,
 };
 
 export const WindowContent = ({ appId, intentData }) => {

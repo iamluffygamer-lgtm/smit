@@ -70,5 +70,12 @@ export const appRegistry = [
         name: 'Notes',
         icon: <IconNotes />,
         defaultSize: { width: 500, height: 500 }
+    },
+    {
+        id: 'games',
+        name: 'Games',
+        icon: <span>▶</span>,
+        defaultSize: { width: 700, height: 520 },
+        defaultPosition: { x: 160, y: 80 }
     }
 ];
