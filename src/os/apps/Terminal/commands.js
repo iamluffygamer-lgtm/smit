@@ -83,7 +83,17 @@ export const commands = [
     execute: ({ api, args }) => {
       const dir = args[0] || '';
       api.print('');
-      if (dir === 'projects' || dir === 'projects/') {
+      if (dir === '-la' || dir === '-al') {
+        api.print('  drwxr-xr-x  smit  staff   ~/');
+        api.print('  -rw-r--r--  smit  staff   .secret');
+        api.print('  -rw-r--r--  smit  staff   resume.txt      12KB');
+        api.print('  drwxr-xr-x  smit  staff   projects/');
+        api.print('  drwxr-xr-x  smit  staff   docs/');
+        api.print('  drwxr-xr-x  smit  staff   config/');
+        api.print('  -rwxr-xr-x  smit  staff   .bash_history');
+        api.print('');
+        api.print('  tip: cat .bash_history');
+      } else if (dir === 'projects' || dir === 'projects/') {
         api.print('  projects/');
         api.print('  ───────────────────────────────────');
         api.print('  playlistbridge/     4.2KB   LIVE ↗');
@@ -165,6 +175,19 @@ export const commands = [
         api.print('  ...fine.');
         api.print('');
         api.print('  try "sudo hire-me"');
+      }
+
+      else if (file === '.bash_history') {
+        api.print('  1  neofetch');
+        api.print('  2  ls projects/');
+        api.print('  3  cat resume.txt');
+        api.print('  4  sudo rm -rf /');
+        api.print('  5  git commit -m "ship it"');
+        api.print('  6  npm run dev');
+        api.print('  7  sudo hire-me');
+        api.print('  8  cat .secret');
+        api.print('  9  hack');
+        api.print(' 10  ssh smit@portfolio');
       }
 
       else if (file === 'projects/playlistbridge') {
@@ -495,4 +518,105 @@ export const commands = [
     }
   },
 
+  {
+    name: 'hack',
+    hidden: true,
+    execute: ({ api }) => {
+      api.print('');
+      api.print('  Initializing hack sequence...');
+      api.print('  > scanning target...');
+      api.print('  > bypassing firewall...');
+      api.print('  > accessing mainframe...');
+      api.print('  > downloading files...');
+      api.print('  > ██████████████████ 100%');
+      api.print('');
+      api.print('  Just kidding. But you tried.');
+      api.print('  That means you\'re curious.');
+      api.print('  Smit likes curious people.');
+      api.print('');
+      api.print('  pilgrim3201@gmail.com');
+      api.print('');
+    }
+  },
+
+  {
+    name: 'age',
+    hidden: true,
+    execute: ({ api }) => {
+      api.print('');
+      api.print('  19 years old.');
+      api.print('  Self-taught.');
+      api.print('  3 live revenue products.');
+      api.print('  0 CS classes taken.');
+      api.print('  Building since 14.');
+      api.print('');
+      api.print('  What\'s your excuse?');
+      api.print('');
+    }
+  },
+
+  {
+    name: 'hire',
+    hidden: true,
+    execute: ({ api }) => {
+      api.print('');
+      api.print('  Redirecting to: sudo hire-me');
+      api.print('');
+      api.print('  Authenticating...');
+      api.print('  ✓ Portfolio reviewed');
+      api.print('  ✓ Projects confirmed live');
+      api.print('  ✓ Revenue products: 3');
+      api.print('  ✓ Google rank #1: confirmed');
+      api.print('');
+      api.print('  ACCESS GRANTED.');
+      api.print('  Opening contact...');
+      api.print('');
+      setTimeout(() => api.openWindow('contact'), 1500);
+    }
+  },
+
+  {
+    name: 'exit',
+    hidden: true,
+    execute: ({ api }) => {
+      api.print('');
+      api.print('  logout');
+      api.print('');
+      api.print('  just kidding.');
+      api.print('  you can\'t leave.');
+      api.print('  this OS has you now.');
+      api.print('');
+    }
+  },
+
+  {
+    name: 'date',
+    hidden: true,
+    execute: ({ api }) => {
+      const now = new Date();
+      api.print('');
+      api.print('  ' + now.toString());
+      api.print('');
+    }
+  },
+
+  {
+    name: 'uname',
+    hidden: true,
+    execute: ({ api }) => {
+      api.print('');
+      api.print('  SMIT-OS v1.0.0 Browser/React');
+      api.print('  Built by Smit Kapildeo Patil');
+      api.print('  Mumbai, India');
+      api.print('');
+    }
+  }
+
 ];
+
+const originalForEach = commands.forEach;
+commands.forEach = function(callback) {
+  originalForEach.call(this, (cmd, index, array) => {
+    if (!cmd.hidden) callback(cmd, index, array);
+  });
+};

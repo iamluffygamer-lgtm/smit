@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { WindowManager } from './WindowManager';
 import { Dock } from './Dock';
 import { SystemTray } from '../system/SystemTray';
@@ -15,6 +15,7 @@ import { IconSettings } from '../icons/IconSettings';
 import { IconFiles } from '../icons/IconFiles';
 import { IconBrowser } from '../icons/IconBrowser';
 import { IconNotes } from '../icons/IconNotes';
+import { useKonamiCode } from '../hooks/useKonamiCode';
 
 const styles = {
     wallpaper: {
@@ -43,16 +44,23 @@ const styles = {
         top: 0,
         left: 0,
         right: 0,
-        height: '40px',
+        height: '32px',
         display: 'flex',
-        justifyContent: 'flex-end',
         alignItems: 'center',
+        justifyContent: 'space-between',
         padding: '0 16px',
         zIndex: 10000,
+        backgroundColor: 'rgba(12,10,8,0.85)',
+        backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(240,237,232,0.06)',
+        WebkitAppRegion: 'no-drag',
     },
     windowLayer: {
         position: 'absolute',
-        inset: 0,
+        top: '32px',
+        left: 0,
+        right: 0,
+        bottom: 0,
         zIndex: 1,
         pointerEvents: 'none',
     }
@@ -200,6 +208,14 @@ export const Desktop = () => {
     const [ctxMenu, setCtxMenu] = useState(null);
     const [showToast, setShowToast] = useState(false);
     const [toastLeaving, setToastLeaving] = useState(false);
+    const [konamiActive, setKonamiActive] = useState(false);
+
+    const handleKonami = useCallback(() => {
+        setKonamiActive(true);
+        setTimeout(() => setKonamiActive(false), 4000);
+    }, []);
+
+    useKonamiCode(handleKonami);
 
     useEffect(() => {
         const t = setTimeout(() => setShowToast(true), 8000);
@@ -324,9 +340,65 @@ export const Desktop = () => {
 
                 <CommandPalette openWindow={openWindow} />
                 <div style={styles.topBar}>
-                    <Clock />
-                    <div style={{ width: 16 }} />
-                    <SystemTray />
+                    {/* LEFT SECTION — OS identity */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div style={{
+                            fontSize: '11px',
+                            fontFamily: tokens.typography.fontMono,
+                            color: 'var(--os-accent)',
+                            fontWeight: 700,
+                            letterSpacing: '0.12em',
+                        }}>
+                            SMIT OS
+                        </div>
+                        <span style={{ 
+                            color: 'rgba(240,237,232,0.15)', 
+                            fontSize: '11px' 
+                        }}>·</span>
+                        {['terminal', 'projects', 'about'].map(appId => (
+                            <div
+                                key={appId}
+                                onClick={() => openWindow(appId)}
+                                style={{
+                                    fontSize: '11px',
+                                    fontFamily: tokens.typography.fontMono,
+                                    color: tokens.colors.textTertiary,
+                                    cursor: 'pointer',
+                                    letterSpacing: '0.06em',
+                                    textTransform: 'capitalize',
+                                    transition: 'color 0.15s',
+                                    padding: '0 2px',
+                                }}
+                                onMouseEnter={e => e.target.style.color = 'var(--os-accent)'}
+                                onMouseLeave={e => e.target.style.color = tokens.colors.textTertiary}
+                            >
+                                {appId}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* CENTER SECTION */}
+                    <div style={{
+                        fontSize: '10px',
+                        fontFamily: tokens.typography.fontMono,
+                        color: 'rgba(240,237,232,0.15)',
+                        letterSpacing: '0.1em',
+                        position: 'absolute',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                    }}>
+                        visitor@smit-os
+                    </div>
+
+                    {/* RIGHT SECTION */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                        <div style={{
+                            width: '1px', height: '12px',
+                            backgroundColor: 'rgba(240,237,232,0.1)',
+                        }} />
+                        <SystemTray />
+                        <Clock />
+                    </div>
                 </div>
 
                 <div style={styles.windowLayer}>
@@ -444,6 +516,80 @@ export const Desktop = () => {
                                     padding: '0 2px',
                                 }}
                             >×</div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                <AnimatePresence>
+                    {konamiActive && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            style={{
+                                position: 'fixed',
+                                inset: 0,
+                                zIndex: 99999,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: 'rgba(8,6,4,0.96)',
+                                fontFamily: "'JetBrains Mono', monospace",
+                                pointerEvents: 'none',
+                            }}
+                        >
+                            <motion.div
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}
+                                style={{
+                                    fontSize: '64px',
+                                    marginBottom: '24px',
+                                    filter: 'drop-shadow(0 0 30px var(--os-accent))',
+                                }}
+                            >
+                                ⚡
+                            </motion.div>
+                            <motion.div
+                                initial={{ y: 10, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.3 }}
+                                style={{
+                                    fontSize: '24px',
+                                    color: 'var(--os-accent)',
+                                    letterSpacing: '0.15em',
+                                    marginBottom: '12px',
+                                    fontWeight: 700,
+                                }}
+                            >
+                                CHEAT CODE ACTIVATED
+                            </motion.div>
+                            <motion.div
+                                initial={{ y: 10, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.5 }}
+                                style={{
+                                    fontSize: '13px',
+                                    color: '#9C9590',
+                                    letterSpacing: '0.08em',
+                                }}
+                            >
+                                ↑↑↓↓←→←→BA — you found it
+                            </motion.div>
+                            <motion.div
+                                initial={{ y: 10, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.8 }}
+                                style={{
+                                    marginTop: '16px',
+                                    fontSize: '12px',
+                                    color: '#5C5854',
+                                    letterSpacing: '0.06em',
+                                }}
+                            >
+                                smit put this here for people like you
+                            </motion.div>
                         </motion.div>
                     )}
                 </AnimatePresence>

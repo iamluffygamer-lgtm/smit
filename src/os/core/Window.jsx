@@ -99,7 +99,7 @@ export const Window = ({ windowState, actions }) => {
     const parsedWidth = typeof width === 'number' ? width : 800;
     const parsedHeight = typeof height === 'number' ? height : 600;
     const centerX = x + parsedWidth / 2;
-    const centerY = Math.max(40, y) + parsedHeight / 2;
+    const centerY = Math.max(0, y) + parsedHeight / 2;
 
     const deltaX = target ? target.x - centerX : 0;
     const deltaY = target ? target.y - centerY : 180;
@@ -109,17 +109,17 @@ export const Window = ({ windowState, actions }) => {
 
     const geometry = maximized
         ? {
-            top: 40,
+            top: 0,
             left: 0,
             width: '100%',
-            height: 'calc(100% - 40px - 64px)',
+            height: 'calc(100% - 64px)',
             transform: 'none',
             borderRadius: 0,
             borderStyle: 'none',
             borderWidth: 0,
         }
         : {
-            top: Math.max(40, y),
+            top: Math.max(0, y),
             left: x,
             width,
             height,
