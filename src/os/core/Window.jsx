@@ -51,6 +51,7 @@ export const Window = ({ windowState, actions }) => {
 
     const [isMinimizing, setIsMinimizing] = useState(false);
     const [prevMinimized, setPrevMinimized] = useState(minimized);
+    const [isShaking, setIsShaking] = useState(false);
 
     if (minimized && !prevMinimized) {
         setPrevMinimized(true);
@@ -75,6 +76,20 @@ export const Window = ({ windowState, actions }) => {
         }
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [focused, maximized, id, actions, isMobileMode]);
+
+    useEffect(() => {
+        const { x, y, width, height } = windowState;
+        const EDGE_THRESHOLD = 10;
+        const hitEdge = 
+            x <= EDGE_THRESHOLD ||
+            y <= 40 ||
+            x + width >= window.innerWidth - EDGE_THRESHOLD;
+        
+        if (hitEdge && !isShaking) {
+            setIsShaking(true);
+            setTimeout(() => setIsShaking(false), 400);
+        }
+    }, [windowState.x, windowState.y]);
 
     // Proxy actions to enforce mobile rules (Back instead of Close, No Restore)
     const windowActions = {
@@ -138,15 +153,41 @@ export const Window = ({ windowState, actions }) => {
 
     const handleMove = (newX, newY) => {
         if (isMobileMode) return;
-        const clampedY = Math.max(40, newY);
-        actions.moveWindow(id, newX, clampedY);
+        
+        const w = typeof width === 'number' ? width : 800;
+        const minX = -w + 60; // Keep at least 60px visible on the left
+        const maxX = window.innerWidth - 60; // Keep at least 60px visible on the right
+        const clampedX = Math.max(minX, Math.min(newX, maxX));
+
+        const maxY = window.innerHeight - 100; // Leave 32px (top bar) + 64px (dock) + some buffer
+        const clampedY = Math.max(0, Math.min(newY, maxY));
+        
+        actions.moveWindow(id, clampedX, clampedY);
     };
 
     const handleResize = (nx, ny, nw, nh) => {
-        if (nx !== x || ny !== y) {
-            actions.moveWindow(id, nx, ny);
+        let clampedY = ny;
+        let clampedH = nh;
+        
+        // Prevent resizing upward past the top bar
+        if (ny < 0) {
+            clampedH = nh + ny; // ny is negative, so this shrinks the height
+            clampedY = 0;
         }
-        actions.resizeWindow(id, nw, nh);
+        
+        let clampedX = nx;
+        let clampedW = nw;
+        
+        // Prevent resizing leftward past the screen edge
+        if (nx < 0) {
+            clampedW = nw + nx; // nx is negative, so this shrinks the width
+            clampedX = 0;
+        }
+
+        if (clampedX !== x || clampedY !== y) {
+            actions.moveWindow(id, clampedX, clampedY);
+        }
+        actions.resizeWindow(id, clampedW, clampedH);
     };
 
     const animationProps = maximized
@@ -182,9 +223,24 @@ export const Window = ({ windowState, actions }) => {
         };
 
     return (
-        <motion.div
-            style={containerStyle}
-            onPointerDownCapture={handleFocus}
+        <>
+            <style>
+                {`
+                @keyframes windowShake {
+                    0%, 100% { translate: 0px; }
+                    20%       { translate: -6px; }
+                    40%       { translate: 6px; }
+                    60%       { translate: -4px; }
+                    80%       { translate: 4px; }
+                }
+                `}
+            </style>
+            <motion.div
+                style={{
+                    ...containerStyle,
+                    animation: (!maximized && isShaking) ? 'windowShake 0.4s ease-in-out' : undefined,
+                }}
+                onPointerDownCapture={handleFocus}
             onAnimationComplete={() => {
                 if (target && !minimized && actions.clearWindowTarget) {
                     actions.clearWindowTarget(id);
@@ -212,8 +268,9 @@ export const Window = ({ windowState, actions }) => {
                     windowState={windowState}
                     onResize={handleResize}
                 />
-            )}
-        </motion.div>
+                )}
+            </motion.div>
+        </>
     );
 };
 

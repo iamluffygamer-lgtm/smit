@@ -20,7 +20,7 @@ const FILE_SYSTEM = {
   },
   docs: {
     name: 'docs/',
-    children: ['resume', 'about', 'contact', 'playlistbridge_pdf', 'rms_pdf'],
+    children: ['resume', 'about', 'contact', 'playlistbridge_pdf', 'rms_pdf', 'secret'],
   },
   config: {
     name: 'config/',
@@ -252,6 +252,34 @@ const FILES = {
     type: 'pdf',
     url: '/docs/rms-ads.pdf',
   },
+  secret: {
+    name: '.secret',
+    icon: '◈',
+    size: '? KB',
+    modified: '???',
+    content: [
+      '// you found it.',
+      '',
+      'this file is not supposed to exist.',
+      'but here you are.',
+      '',
+      "that means you're the kind of person",
+      'who actually explores things.',
+      '',
+      'smit built this entire OS',
+      'at 19, self-taught,',
+      'while everyone else was doing',
+      'tutorial clones.',
+      '',
+      "if you're reading this,",
+      'you should probably reach out.',
+      '',
+      'pilgrim3201@gmail.com',
+      '@coder_smit',
+      '',
+      '// end of secret',
+    ],
+  },
 };
 
 export default function Files() {
@@ -268,7 +296,7 @@ export default function Files() {
 
   const folderFiles = {
     projects: ['playlistbridge', 'rmsads', 'answerhunt', 'smitos'],
-    docs:     ['resume', 'about', 'contact', 'playlistbridge_pdf', 'rms_pdf'],
+    docs:     ['resume', 'about', 'contact', 'playlistbridge_pdf', 'rms_pdf', 'secret'],
     config:   ['stack', 'philosophy'],
     paint:    paintKeys,
     notes:    notesKeys,
@@ -487,7 +515,9 @@ export default function Files() {
                   fontSize: '12px',
                   color: isSelected
                     ? tokens.colors.textPrimary
-                    : tokens.colors.textSecondary,
+                    : fileId === 'secret'
+                      ? 'var(--os-accent)'
+                      : tokens.colors.textSecondary,
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',

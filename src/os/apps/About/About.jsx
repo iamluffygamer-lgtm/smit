@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { aboutData } from './about.data.js';
 import { tokens } from '../../styles/tokens';
 
@@ -6,6 +6,40 @@ export const About = () => {
     const [visibleSections, setVisibleSections] = useState([]);
     const [hoveredStat, setHoveredStat] = useState(null);
     const [hoveredSkill, setHoveredSkill] = useState(null);
+
+    const [clickCount, setClickCount] = useState(0);
+    const [eggActive, setEggActive] = useState(false);
+    const [displayText, setDisplayText] = useState(aboutData.headline);
+    const clickTimerRef = useRef(null);
+
+    const triggerEgg = () => {
+        setEggActive(true);
+        const chars = '!@#$%^&*<>?/\\|{}[]';
+        const target = "You're not hiring a student. You're hiring a builder.";
+        let frame = 0;
+        const total = 20;
+        
+        const interval = setInterval(() => {
+            frame++;
+            if (frame >= total) {
+                clearInterval(interval);
+                setDisplayText(target);
+                setTimeout(() => {
+                    setDisplayText(aboutData.headline);
+                    setEggActive(false);
+                }, 3000);
+                return;
+            }
+            
+            setDisplayText(
+                target.split('').map((char, i) => {
+                    if (char === ' ') return ' ';
+                    if (i < (frame / total) * target.length) return char;
+                    return chars[Math.floor(Math.random() * chars.length)];
+                }).join('')
+            );
+        }, 50);
+    };
 
     useEffect(() => {
       const sections = ['header', 'headline', 'stats', 'bio', 'skills'];
@@ -194,7 +228,27 @@ export const About = () => {
 
                 {/* SECTION 2 — HEADLINE */}
                 <div style={{ ...styles.headlineContainer, ...revealStyle('headline') }}>
-                    <p style={styles.headline}>{aboutData.headline}</p>
+                    <p 
+                        onClick={() => {
+                            setClickCount(c => {
+                                const next = c + 1;
+                                if (next >= 5) {
+                                    triggerEgg();
+                                    return 0;
+                                }
+                                clearTimeout(clickTimerRef.current);
+                                clickTimerRef.current = setTimeout(() => setClickCount(0), 2000);
+                                return next;
+                            });
+                        }}
+                        style={{ 
+                            ...styles.headline, 
+                            cursor: 'pointer', 
+                            color: eggActive ? 'var(--os-accent)' : tokens.colors.textPrimary 
+                        }}
+                    >
+                        {displayText}
+                    </p>
                 </div>
 
                 {/* SECTION 3 — STATS ROW */}
