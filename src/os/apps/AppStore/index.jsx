@@ -6,7 +6,7 @@ import { useWindowStore } from '../../store/windowStore';
 import { useNotificationStore } from '../../system/notificationStore';
 
 export default function AppStore() {
-  const [activeSection, setActiveSection] = useState('featured');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedApp, setSelectedApp] = useState(null);
   const { installed, installing, progress, installApp, uninstallApp, isInstalled } = useAppStoreStore();
   const openWindow = useWindowStore(state => state.openWindow);
@@ -24,15 +24,15 @@ export default function AppStore() {
     }, 2400);
   };
 
-  const featured = APP_CATALOG.filter(a => a.featured);
+  const featuredApp = APP_CATALOG.find(a => a.featured);
   const utilities = APP_CATALOG.filter(a => a.category === 'UTILITIES');
   const installedApps = APP_CATALOG.filter(a => isInstalled(a.id));
 
-  const SECTIONS = [
-    { id: 'featured',  label: 'Featured' },
-    { id: 'utilities', label: 'Utilities' },
-    { id: 'installed', label: `Installed (${installedApps.length})` },
-  ];
+  const query = searchQuery.toLowerCase();
+  const searchResults = APP_CATALOG.filter(a => 
+    a.name.toLowerCase().includes(query) || 
+    a.tagline.toLowerCase().includes(query)
+  );
 
   // App Detail View
   if (selectedApp) {
@@ -188,53 +188,36 @@ export default function AppStore() {
 
       {/* Header */}
       <div style={{
-        padding: '16px 20px 0',
+        padding: '16px 20px',
         borderBottom: `1px solid ${tokens.colors.borderSubtle}`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexShrink: 0,
       }}>
         <div style={{
           fontSize: '10px',
           color: tokens.colors.textTertiary,
           letterSpacing: '0.1em',
-          marginBottom: '4px',
         }}>
           // APP STORE
         </div>
-        <div style={{
-          fontSize: '16px',
-          fontWeight: 700,
-          color: tokens.colors.textPrimary,
-          marginBottom: '12px',
-        }}>
-          SMIT OS Store
-        </div>
-
-        {/* Section tabs */}
-        <div style={{ display: 'flex', gap: '0' }}>
-          {SECTIONS.map(section => (
-            <button
-              key={section.id}
-              onClick={() => setActiveSection(section.id)}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: 'transparent',
-                border: 'none',
-                borderBottom: activeSection === section.id
-                  ? `2px solid var(--os-accent)`
-                  : '2px solid transparent',
-                color: activeSection === section.id
-                  ? 'var(--os-accent)'
-                  : tokens.colors.textTertiary,
-                fontFamily: tokens.typography.fontMono,
-                fontSize: '11px',
-                cursor: 'pointer',
-                letterSpacing: '0.06em',
-                transition: 'all 0.15s',
-              }}
-            >
-              {section.label}
-            </button>
-          ))}
-        </div>
+        <input
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search apps..."
+          style={{
+            width: '180px',
+            fontSize: '11px',
+            fontFamily: tokens.typography.fontMono,
+            backgroundColor: tokens.colors.bgElevated,
+            border: `1px solid ${tokens.colors.borderSubtle}`,
+            padding: '6px 12px',
+            color: tokens.colors.textPrimary,
+            outline: 'none',
+            borderRadius: '2px',
+          }}
+        />
       </div>
 
       {/* Content */}
@@ -244,102 +227,218 @@ export default function AppStore() {
         scrollbarWidth: 'none',
         padding: '16px 20px',
       }}>
-
-        {activeSection === 'featured' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {query ? (
+          searchResults.length === 0 ? (
             <div style={{
-              fontSize: '10px',
+              fontSize: '12px',
               color: tokens.colors.textTertiary,
-              letterSpacing: '0.1em',
-              marginBottom: '4px',
+              textAlign: 'center',
+              padding: '40px',
             }}>
-              // FEATURED
+              no results for '{searchQuery}'
             </div>
-            {featured.map(app => (
-              <AppCard
-                key={app.id}
-                app={app}
-                installed={isInstalled(app.id)}
-                installing={installing === app.id}
-                progress={progress}
-                onInstall={() => handleInstall(app)}
-                onOpen={() => openWindow(app.appId)}
-                onSelect={() => setSelectedApp(app)}
-              />
-            ))}
-            <div style={{
-              fontSize: '10px',
-              color: tokens.colors.textTertiary,
-              letterSpacing: '0.1em',
-              marginTop: '8px',
-              marginBottom: '4px',
-            }}>
-              // UTILITIES
-            </div>
-            {utilities.map(app => (
-              <AppCard
-                key={app.id}
-                app={app}
-                installed={isInstalled(app.id)}
-                installing={installing === app.id}
-                progress={progress}
-                onInstall={() => handleInstall(app)}
-                onOpen={() => openWindow(app.appId)}
-                onSelect={() => setSelectedApp(app)}
-              />
-            ))}
-          </div>
-        )}
-
-        {activeSection === 'utilities' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {utilities.map(app => (
-              <AppCard
-                key={app.id}
-                app={app}
-                installed={isInstalled(app.id)}
-                installing={installing === app.id}
-                progress={progress}
-                onInstall={() => handleInstall(app)}
-                onOpen={() => openWindow(app.appId)}
-                onSelect={() => setSelectedApp(app)}
-              />
-            ))}
-          </div>
-        )}
-
-        {activeSection === 'installed' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {installedApps.length === 0 ? (
-              <div style={{
-                textAlign: 'center',
-                padding: '40px 20px',
-                color: tokens.colors.textTertiary,
-                fontSize: '12px',
-              }}>
-                No apps installed yet.{'\n'}
-                Browse Featured to get started.
-              </div>
-            ) : (
-              installedApps.map(app => (
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              {searchResults.map(app => (
                 <AppCard
                   key={app.id}
                   app={app}
-                  installed={true}
-                  installing={false}
-                  progress={0}
-                  onInstall={() => {}}
+                  installed={isInstalled(app.id)}
+                  installing={installing === app.id}
+                  progress={progress}
+                  onInstall={() => handleInstall(app)}
                   onOpen={() => openWindow(app.appId)}
                   onSelect={() => setSelectedApp(app)}
-                  showUninstall
-                  onUninstall={() => {
-                    uninstallApp(app.id);
-                    addNotification(`${app.name} uninstalled`, 'info');
-                  }}
                 />
-              ))
+              ))}
+            </div>
+          )
+        ) : (
+          <>
+            {/* HERO SECTION */}
+            {featuredApp && (
+              <div style={{
+                height: '160px',
+                background: `linear-gradient(135deg, rgba(232, 160, 32, 0.08) 0%, ${tokens.colors.bgElevated} 100%)`,
+                border: `1px solid ${tokens.colors.accentBorder}`,
+                borderRadius: '2px',
+                padding: '24px',
+                marginBottom: '24px',
+                display: 'flex',
+                boxSizing: 'border-box',
+                cursor: 'pointer',
+              }} onClick={() => setSelectedApp(featuredApp)}>
+                <div style={{
+                  width: '72px',
+                  height: '72px',
+                  backgroundColor: tokens.colors.bgSurface,
+                  border: `1px solid ${tokens.colors.accentBorder}`,
+                  borderRadius: '4px',
+                  fontSize: '32px',
+                  color: 'var(--os-accent)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}>
+                  {featuredApp.icon}
+                </div>
+                <div style={{ flex: 1, padding: '0 20px' }}>
+                  <div style={{ fontSize: '9px', color: 'var(--os-accent)', letterSpacing: '0.15em', marginBottom: '6px' }}>
+                    FEATURED
+                  </div>
+                  <div style={{ fontSize: '20px', fontWeight: 700, color: tokens.colors.textPrimary, marginBottom: '4px' }}>
+                    {featuredApp.name}
+                  </div>
+                  <div style={{ fontSize: '13px', color: tokens.colors.textSecondary, marginBottom: '12px' }}>
+                    {featuredApp.tagline}
+                  </div>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    {['HTML', 'CSS', 'JS', 'AI', 'Live Preview'].map(tag => (
+                      <div key={tag} style={{
+                        padding: '3px 8px',
+                        backgroundColor: tokens.colors.bgSurface,
+                        border: `1px solid ${tokens.colors.borderSubtle}`,
+                        fontSize: '10px',
+                        color: tokens.colors.textTertiary,
+                        borderRadius: '2px',
+                      }}>
+                        {tag}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }} onClick={e => e.stopPropagation()}>
+                  <InstallButton
+                    app={featuredApp}
+                    installed={isInstalled(featuredApp.id)}
+                    installing={installing === featuredApp.id}
+                    progress={progress}
+                    onInstall={() => handleInstall(featuredApp)}
+                    onOpen={() => openWindow(featuredApp.appId)}
+                  />
+                  <div style={{ fontSize: '10px', color: tokens.colors.textTertiary, textAlign: 'center', marginTop: '6px' }}>
+                    v{featuredApp.version} · {featuredApp.size}
+                  </div>
+                </div>
+              </div>
             )}
-          </div>
+
+            {/* INSTALLED SECTION */}
+            {installedApps.length > 0 && (
+              <>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+                  <div style={{ fontSize: '10px', color: tokens.colors.textTertiary, letterSpacing: '0.1em' }}>
+                    INSTALLED
+                  </div>
+                  <div style={{ flex: 1, height: '1px', backgroundColor: tokens.colors.bgElevated, marginLeft: '12px' }} />
+                </div>
+                <div style={{
+                  display: 'flex',
+                  gap: '10px',
+                  overflowX: 'auto',
+                  scrollbarWidth: 'none',
+                  paddingBottom: '4px',
+                  marginBottom: '24px',
+                }}>
+                  {installedApps.map(app => (
+                    <div key={app.id} style={{
+                      width: '120px',
+                      flexShrink: 0,
+                      padding: '12px 8px',
+                      backgroundColor: tokens.colors.bgElevated,
+                      border: `1px solid ${tokens.colors.borderSubtle}`,
+                      borderRadius: '2px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '8px',
+                      boxSizing: 'border-box',
+                    }}>
+                      <div onClick={() => setSelectedApp(app)} style={{
+                        width: '48px',
+                        height: '48px',
+                        backgroundColor: tokens.colors.bgSurface,
+                        border: `1px solid ${tokens.colors.borderSubtle}`,
+                        borderRadius: '4px',
+                        fontSize: '22px',
+                        color: 'var(--os-accent)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                      }}>
+                        {app.icon}
+                      </div>
+                      <div style={{
+                        fontSize: '11px',
+                        color: tokens.colors.textSecondary,
+                        textAlign: 'center',
+                        maxWidth: '100px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}>
+                        {app.name}
+                      </div>
+                      <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                        <InstallButton
+                          app={app}
+                          installed={true}
+                          installing={false}
+                          progress={0}
+                          onInstall={() => {}}
+                          onOpen={(e) => {
+                            e.stopPropagation();
+                            openWindow(app.appId);
+                          }}
+                        />
+                      </div>
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          uninstallApp(app.id);
+                          addNotification(`${app.name} uninstalled`, 'info');
+                        }}
+                        style={{
+                          fontSize: '9px',
+                          color: 'rgba(248,113,113,0.5)',
+                          cursor: 'pointer',
+                          textAlign: 'center',
+                        }}
+                        onMouseEnter={e => e.target.style.color = '#F87171'}
+                        onMouseLeave={e => e.target.style.color = 'rgba(248,113,113,0.5)'}
+                      >
+                        REMOVE
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* UTILITIES SECTION */}
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+              <div style={{ fontSize: '10px', color: tokens.colors.textTertiary, letterSpacing: '0.1em' }}>
+                UTILITIES
+              </div>
+              <div style={{ flex: 1, height: '1px', backgroundColor: tokens.colors.bgElevated, marginLeft: '12px' }} />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              {utilities.map(app => (
+                <AppCard
+                  key={app.id}
+                  app={app}
+                  installed={isInstalled(app.id)}
+                  installing={installing === app.id}
+                  progress={progress}
+                  onInstall={() => handleInstall(app)}
+                  onOpen={() => openWindow(app.appId)}
+                  onSelect={() => setSelectedApp(app)}
+                />
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>
@@ -347,138 +446,85 @@ export default function AppStore() {
 }
 
 // App Card component
-const AppCard = ({ app, installed, installing, progress, onInstall, onOpen, onSelect, showUninstall, onUninstall }) => {
+const AppCard = ({ app, installed, installing, progress, onInstall, onOpen, onSelect }) => {
   const [hovered, setHovered] = useState(false);
 
   return (
     <div
+      onClick={onSelect}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
         padding: '14px',
-        backgroundColor: hovered ? tokens.colors.bgElevated : tokens.colors.bgSurface,
+        backgroundColor: hovered ? tokens.colors.bgSurface : tokens.colors.bgElevated,
         border: `1px solid ${hovered ? tokens.colors.borderDefault : tokens.colors.borderSubtle}`,
         borderRadius: '2px',
+        display: 'flex',
+        gap: '12px',
+        alignItems: 'center',
         transition: 'all 0.15s',
-        cursor: 'default',
+        cursor: 'pointer',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-        {/* Icon */}
-        <div
-          onClick={onSelect}
-          style={{
-            width: '44px',
-            height: '44px',
-            backgroundColor: tokens.colors.bgElevated,
-            border: `1px solid ${tokens.colors.borderSubtle}`,
-            borderRadius: '2px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '20px',
-            flexShrink: 0,
-            cursor: 'pointer',
-            color: 'var(--os-accent)',
-          }}
-        >
-          {app.icon}
-        </div>
+      <div style={{
+        width: '40px',
+        height: '40px',
+        backgroundColor: tokens.colors.bgSurface,
+        border: `1px solid ${tokens.colors.borderSubtle}`,
+        borderRadius: '2px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '18px',
+        flexShrink: 0,
+        color: 'var(--os-accent)',
+      }}>
+        {app.icon}
+      </div>
 
-        {/* Info */}
-        <div style={{ flex: 1, cursor: 'pointer' }} onClick={onSelect}>
-          <div style={{
-            fontSize: '13px',
-            fontWeight: 600,
-            color: tokens.colors.textPrimary,
-            marginBottom: '2px',
-          }}>
-            {app.name}
-          </div>
-          <div style={{
-            fontSize: '11px',
-            color: tokens.colors.textSecondary,
-            marginBottom: '4px',
-          }}>
-            {app.tagline}
-          </div>
-          <div style={{
-            fontSize: '10px',
-            color: tokens.colors.textTertiary,
-          }}>
-            {app.version} · {app.size}
-          </div>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontSize: '12px', fontWeight: 600, color: tokens.colors.textPrimary }}>
+          {app.name}
         </div>
-
-        {/* Actions */}
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          {showUninstall && (
-            <button
-              onClick={onUninstall}
-              style={{
-                padding: '6px 10px',
-                backgroundColor: 'transparent',
-                border: `1px solid rgba(248,113,113,0.3)`,
-                borderRadius: '2px',
-                color: '#F87171',
-                fontFamily: tokens.typography.fontMono,
-                fontSize: '10px',
-                cursor: 'pointer',
-              }}
-            >
-              REMOVE
-            </button>
-          )}
-          <InstallButton
-            app={app}
-            installed={installed}
-            installing={installing}
-            progress={progress}
-            onInstall={onInstall}
-            onOpen={onOpen}
-          />
+        <div style={{ fontSize: '11px', color: tokens.colors.textSecondary, marginTop: '2px' }}>
+          {app.tagline}
+        </div>
+        <div style={{ fontSize: '10px', color: tokens.colors.textTertiary, marginTop: '4px' }}>
+          v{app.version} · {app.size}
         </div>
       </div>
 
-      {/* Install progress bar */}
+      <div onClick={(e) => e.stopPropagation()}>
+        <InstallButton
+          app={app}
+          installed={installed}
+          installing={installing}
+          progress={progress}
+          onInstall={(e) => {
+            e.stopPropagation();
+            onInstall();
+          }}
+          onOpen={(e) => {
+            e.stopPropagation();
+            onOpen();
+          }}
+        />
+      </div>
+
       {installing && (
-        <div style={{ marginTop: '10px' }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '4px',
-          }}>
-            <span style={{
-              fontSize: '10px',
-              color: tokens.colors.textTertiary,
-              fontFamily: tokens.typography.fontMono,
-            }}>
-              Installing...
-            </span>
-            <span style={{
-              fontSize: '10px',
-              color: 'var(--os-accent)',
-              fontFamily: tokens.typography.fontMono,
-            }}>
-              {progress}%
-            </span>
-          </div>
-          <div style={{
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${progress}%` }}
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
             height: '2px',
-            backgroundColor: tokens.colors.bgElevated,
-            borderRadius: '0',
-            overflow: 'hidden',
-          }}>
-            <motion.div
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.3 }}
-              style={{
-                height: '100%',
-                backgroundColor: 'var(--os-accent)',
-              }}
-            />
-          </div>
-        </div>
+            backgroundColor: 'var(--os-accent)',
+          }}
+        />
       )}
     </div>
   );
@@ -507,7 +553,10 @@ const InstallButton = ({ app, installed, installing, progress, onInstall, onOpen
   if (installed) {
     return (
       <button
-        onClick={onOpen}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (onOpen) onOpen(e);
+        }}
         style={{
           padding: '6px 14px',
           backgroundColor: tokens.colors.accentMuted,
@@ -528,7 +577,10 @@ const InstallButton = ({ app, installed, installing, progress, onInstall, onOpen
 
   return (
     <button
-      onClick={onInstall}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (onInstall) onInstall(e);
+      }}
       style={{
         padding: '6px 14px',
         backgroundColor: 'var(--os-accent)',

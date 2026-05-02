@@ -3,6 +3,7 @@ import { tokens } from '../../styles/tokens';
 import { TEMPLATES, matchTemplate } from './templates';
 import { useWindowStore } from '../../store/windowStore';
 import { useNotificationStore } from '../../system/notificationStore';
+import { motion } from 'framer-motion';
 
 const DEFAULT_HTML = `<!DOCTYPE html>
 <html>
@@ -30,17 +31,45 @@ const DEFAULT_HTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
-export default function CodeEditor() {
-  const [code, setCode] = useState(DEFAULT_HTML);
+export default function CodeEditor({ intentData }) {
+  const [code, setCode] = useState(() => {
+    if (intentData?.prefill) return intentData.prefill;
+    return localStorage.getItem('smit-code-editor-draft') || DEFAULT_HTML;
+  });
   const [preview, setPreview] = useState('');
   const [aiInput, setAiInput] = useState('');
   const [aiThinking, setAiThinking] = useState(false);
   const [aiMessage, setAiMessage] = useState('');
   const [consoleLogs, setConsoleLogs] = useState([]);
   const [showConsole, setShowConsole] = useState(false);
+  const [autoSaved, setAutoSaved] = useState(false);
+  const [savedFilename, setSavedFilename] = useState(intentData?.filename || '');
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [deployedUrl, setDeployedUrl] = useState('');
   const iframeRef = useRef(null);
   const openWindow = useWindowStore(state => state.openWindow);
   const addNotification = useNotificationStore(state => state.addNotification);
+
+  // Autosave to localStorage
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      localStorage.setItem('smit-code-editor-draft', code);
+      setAutoSaved(true);
+      setTimeout(() => setAutoSaved(false), 1500);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [code]);
+
+  const handleSave = () => {
+    const filename = savedFilename || `playground-${Date.now()}.html`;
+    const filesData = JSON.parse(localStorage.getItem('smit-files-data') || '{"code":{}}');
+    if (!filesData.code) filesData.code = {};
+    filesData.code[filename] = code;
+    localStorage.setItem('smit-files-data', JSON.stringify(filesData));
+    
+    addNotification('Saved to /code', 'success', 2000);
+    setSavedFilename(filename);
+  };
 
   const addLog = (msg, type = 'info') => {
     setConsoleLogs(prev => [...prev, {
@@ -74,8 +103,53 @@ export default function CodeEditor() {
     // Update preview
     setTimeout(() => {
       setPreview(code);
+      setDeployedUrl('');
       addNotification('Preview updated', 'success', 2000);
     }, 1300);
+  };
+
+  const handleDeploy = () => {
+    setIsDeploying(true);
+    setDeployedUrl('');
+    setShowConsole(true);
+    setConsoleLogs([]);
+
+    const buildLogs = [
+      { msg: '> npm run build', type: 'cmd', delay: 0 },
+      { msg: '', type: 'info', delay: 100 },
+      { msg: '  vite v5.4.0 building for production...', type: 'info', delay: 200 },
+      { msg: '  transforming...', type: 'info', delay: 500 },
+      { msg: '  ✓ ' + (Math.floor(Math.random()*8)+4) + ' modules transformed.', type: 'success', delay: 900 },
+      { msg: '  dist/index.html    ' + (Math.floor(Math.random()*5)+2) + '.00 kB', type: 'info', delay: 1000 },
+      { msg: '  dist/assets/index  ' + (Math.floor(Math.random()*40)+20) + '.00 kB │ gzip: ' + (Math.floor(Math.random()*15)+8) + '.00 kB', type: 'info', delay: 1100 },
+      { msg: '  ✓ built in ' + (Math.random()*0.8+0.4).toFixed(2) + 's', type: 'success', delay: 1200 },
+      { msg: '', type: 'info', delay: 1400 },
+      { msg: '  Deploying...', type: 'info', delay: 1500 },
+      { msg: '  ● Uploading build output', type: 'info', delay: 1800 },
+      { msg: '  ● Assigning domains', type: 'info', delay: 2100 },
+      { msg: '  ● Finalizing', type: 'info', delay: 2400 },
+    ];
+
+    buildLogs.forEach(({ msg, type, delay }) => {
+      setTimeout(() => addLog(msg, type), delay);
+    });
+
+    setTimeout(() => {
+      const blob = new Blob([code], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      setDeployedUrl(url);
+
+      addLog('', 'info');
+      addLog('  ✓ Build complete', 'success');
+      setTimeout(() => addLog('', 'info'), 100);
+      setTimeout(() => addLog('  ⚡  Preview ready — click to open', 'link'), 200);
+      setTimeout(() => addLog('', 'info'), 300);
+    }, 2800);
+
+    setTimeout(() => {
+      setIsDeploying(false);
+      addNotification('Deployed — preview ready ⚡', 'success', 4000);
+    }, 3200);
   };
 
   const handleAiSubmit = () => {
@@ -131,9 +205,35 @@ export default function CodeEditor() {
           color: tokens.colors.textTertiary,
           letterSpacing: '0.1em',
           flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
         }}>
-          // CODE EDITOR · playground
+          <span>// CODE EDITOR · {savedFilename || 'playground'}</span>
+          <span style={{
+            opacity: autoSaved ? 0.5 : 0,
+            transition: 'opacity 0.3s',
+            fontStyle: 'italic'
+          }}>
+            // auto-saved
+          </span>
         </span>
+        <button
+          onClick={handleSave}
+          style={{
+            padding: '4px 10px',
+            backgroundColor: 'transparent',
+            border: `1px solid ${tokens.colors.borderSubtle}`,
+            borderRadius: '2px',
+            color: tokens.colors.textTertiary,
+            fontFamily: tokens.typography.fontMono,
+            fontSize: '10px',
+            cursor: 'pointer',
+            letterSpacing: '0.05em',
+          }}
+        >
+          SAVE
+        </button>
         <button
           onClick={() => setShowConsole(s => !s)}
           style={{
@@ -166,6 +266,25 @@ export default function CodeEditor() {
           }}
         >
           RUN ▶
+        </button>
+        <button
+          onClick={handleDeploy}
+          disabled={isDeploying}
+          style={{
+            padding: '4px 16px',
+            backgroundColor: 'transparent',
+            border: '1px solid rgba(74,222,128,0.3)',
+            borderRadius: '2px',
+            color: '#4ADE80',
+            fontFamily: tokens.typography.fontMono,
+            fontSize: '11px',
+            fontWeight: 700,
+            cursor: isDeploying ? 'default' : 'pointer',
+            letterSpacing: '0.06em',
+            opacity: isDeploying ? 0.5 : 1,
+          }}
+        >
+          {isDeploying ? 'DEPLOYING...' : deployedUrl ? 'DEPLOYED ✓' : 'DEPLOY'}
         </button>
       </div>
 
@@ -365,7 +484,87 @@ export default function CodeEditor() {
               }} />
             )}
           </div>
-          {preview ? (
+          {deployedUrl ? (
+            <div style={{
+              flex: 1,
+              backgroundColor: tokens.colors.bgCanvas,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '16px',
+            }}>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                style={{
+                  width: '56px',
+                  height: '56px',
+                  border: '1px solid rgba(74,222,128,0.3)',
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(74,222,128,0.08)',
+                  color: '#4ADE80',
+                  fontSize: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                ✓
+              </motion.div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: '#4ADE80', letterSpacing: '0.15em' }}>
+                  DEPLOYED
+                </div>
+                <div style={{ fontSize: '11px', color: tokens.colors.textTertiary }}>
+                  Preview opens in a new tab
+                </div>
+              </div>
+              
+              <button
+                onClick={() => window.open(deployedUrl, '_blank')}
+                style={{
+                  padding: '6px 20px',
+                  backgroundColor: 'var(--os-accent)',
+                  border: 'none',
+                  borderRadius: '2px',
+                  color: tokens.colors.bgCanvas,
+                  fontFamily: tokens.typography.fontMono,
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  letterSpacing: '0.06em',
+                  marginTop: '8px'
+                }}
+              >
+                OPEN PREVIEW ↗
+              </button>
+              
+              <div
+                onClick={() => setDeployedUrl('')}
+                style={{
+                  fontSize: '10px',
+                  color: tokens.colors.textTertiary,
+                  cursor: 'pointer',
+                  marginTop: '4px',
+                }}
+                onMouseEnter={e => e.target.style.color = tokens.colors.textSecondary}
+                onMouseLeave={e => e.target.style.color = tokens.colors.textTertiary}
+              >
+                ← back to preview
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', marginTop: '24px' }}>
+                <div style={{ fontSize: '10px', color: tokens.colors.textTertiary }}>
+                  // blob URL — expires when tab closes
+                </div>
+                <div style={{ fontSize: '10px', color: tokens.colors.borderSubtle }}>
+                  // upgrade path: live URL routing after hosting
+                </div>
+              </div>
+            </div>
+          ) : preview ? (
             <iframe
               ref={iframeRef}
               srcDoc={preview}

@@ -294,10 +294,14 @@ export default function Files() {
   const notesFiles = JSON.parse(localStorage.getItem('smit-os-notes-files') || '{}');
   const notesKeys = Object.keys(notesFiles);
 
+  const codeFilesData = JSON.parse(localStorage.getItem('smit-files-data') || '{"code":{}}');
+  const codeKeys = Object.keys(codeFilesData.code || {});
+
   const folderFiles = {
     projects: ['playlistbridge', 'rmsads', 'answerhunt', 'smitos'],
     docs:     ['resume', 'about', 'contact', 'playlistbridge_pdf', 'rms_pdf', 'secret'],
     config:   ['stack', 'philosophy'],
+    code:     codeKeys,
     paint:    paintKeys,
     notes:    notesKeys,
   };
@@ -330,6 +334,17 @@ export default function Files() {
     };
   });
 
+  codeKeys.forEach(key => {
+    currentFilesMap[key] = {
+      name: key,
+      icon: '⌨',
+      size: codeFilesData.code[key].length ? (codeFilesData.code[key].length / 1024).toFixed(1) + ' KB' : '0 KB',
+      modified: 'now',
+      isCode: true,
+      content: codeFilesData.code[key].split('\n')
+    };
+  });
+
   const currentFiles = folderFiles[selectedFolder] || [];
   const currentFile = currentFilesMap[selectedFile];
 
@@ -337,18 +352,27 @@ export default function Files() {
     const newName = window.prompt('Rename file:', selectedFile);
     if (!newName || newName === selectedFile) return;
 
-    const storageKey = currentFile.isPaint ? 'smit-os-paint-files' : currentFile.isNote ? 'smit-os-notes-files' : null;
+    let storageKey = null;
+    let isCode = false;
+
+    if (currentFile.isPaint) storageKey = 'smit-os-paint-files';
+    else if (currentFile.isNote) storageKey = 'smit-os-notes-files';
+    else if (currentFile.isCode) { storageKey = 'smit-files-data'; isCode = true; }
+
     if (!storageKey) return;
 
     const files = JSON.parse(localStorage.getItem(storageKey) || '{}');
 
-    if (files[newName]) {
-      alert('File already exists');
-      return;
+    if (isCode) {
+      if (!files.code) files.code = {};
+      if (files.code[newName]) { alert('File already exists'); return; }
+      files.code[newName] = files.code[selectedFile];
+      delete files.code[selectedFile];
+    } else {
+      if (files[newName]) { alert('File already exists'); return; }
+      files[newName] = files[selectedFile];
+      delete files[selectedFile];
     }
-
-    files[newName] = files[selectedFile];
-    delete files[selectedFile];
 
     localStorage.setItem(storageKey, JSON.stringify(files));
     setSelectedFile(newName);
@@ -358,11 +382,22 @@ export default function Files() {
   const deleteFile = () => {
     if (!window.confirm('Delete this file?')) return;
 
-    const storageKey = currentFile.isPaint ? 'smit-os-paint-files' : currentFile.isNote ? 'smit-os-notes-files' : null;
+    let storageKey = null;
+    let isCode = false;
+
+    if (currentFile.isPaint) storageKey = 'smit-os-paint-files';
+    else if (currentFile.isNote) storageKey = 'smit-os-notes-files';
+    else if (currentFile.isCode) { storageKey = 'smit-files-data'; isCode = true; }
+
     if (!storageKey) return;
 
     const files = JSON.parse(localStorage.getItem(storageKey) || '{}');
-    delete files[selectedFile];
+    
+    if (isCode) {
+      if (files.code) delete files.code[selectedFile];
+    } else {
+      delete files[selectedFile];
+    }
 
     localStorage.setItem(storageKey, JSON.stringify(files));
     setSelectedFile(null);
@@ -595,7 +630,7 @@ export default function Files() {
                   LIVE ↗
                 </button>
               )}
-              {(currentFile.isPaint || currentFile.isNote) && (
+              {(currentFile.isPaint || currentFile.isNote || currentFile.isCode) && (
                 <>
                   <button
                     onClick={renameFile}
@@ -673,6 +708,28 @@ export default function Files() {
                       onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                     >
                       OPEN IN NOTES ↗
+                    </button>
+                  )}
+                  {currentFile.isCode && (
+                    <button
+                      onClick={() => openWindow('codeEditor', null, { prefill: codeFilesData.code[selectedFile], filename: selectedFile })}
+                      style={{
+                        backgroundColor: 'transparent',
+                        border: '1px solid var(--os-accent)',
+                        borderRadius: '2px',
+                        color: 'var(--os-accent)',
+                        fontFamily: tokens.typography.fontMono,
+                        fontSize: '10px',
+                        padding: '2px 6px',
+                        cursor: 'pointer',
+                        marginLeft: '8px',
+                        letterSpacing: '0.05em',
+                        transition: 'all 0.15s',
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(232,160,32,0.1)'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                    >
+                      OPEN IN EDITOR ↗
                     </button>
                   )}
                 </>
