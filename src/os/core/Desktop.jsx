@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { WindowManager } from './WindowManager';
 import { Dock } from './Dock';
+import { Launchpad } from './Launchpad';
 import { SystemTray } from '../system/SystemTray';
 import { Clock } from '../system/Clock';
 import { tokens } from '../styles/tokens';
@@ -209,6 +210,7 @@ export const Desktop = () => {
     const [showToast, setShowToast] = useState(false);
     const [toastLeaving, setToastLeaving] = useState(false);
     const [konamiActive, setKonamiActive] = useState(false);
+    const [launcherOpen, setLauncherOpen] = useState(false);
 
     const handleKonami = useCallback(() => {
         setKonamiActive(true);
@@ -235,6 +237,7 @@ export const Desktop = () => {
         { icon: <IconTerminal size={13} />, label: 'Open Terminal', appId: 'terminal' },
         { icon: <IconProjects size={13} />, label: 'Open Projects', appId: 'projects' },
         { icon: <IconAbout size={13} />, label: 'About This System', appId: 'about' },
+        { icon: '◈', label: 'App Store', appId: 'appStore' },
         { divider: true },
         { icon: <IconSettings size={13} />, label: 'Settings', appId: 'settings' },
     ];
@@ -355,7 +358,7 @@ export const Desktop = () => {
                             color: 'rgba(240,237,232,0.15)', 
                             fontSize: '11px' 
                         }}>·</span>
-                        {['terminal', 'projects', 'about'].map(appId => (
+                        {['terminal', 'projects', 'about', 'appStore'].map(appId => (
                             <div
                                 key={appId}
                                 onClick={() => openWindow(appId)}
@@ -372,7 +375,7 @@ export const Desktop = () => {
                                 onMouseEnter={e => e.target.style.color = 'var(--os-accent)'}
                                 onMouseLeave={e => e.target.style.color = tokens.colors.textTertiary}
                             >
-                                {appId}
+                                {appId === 'appStore' ? 'app store' : appId}
                             </div>
                         ))}
                     </div>
@@ -405,7 +408,9 @@ export const Desktop = () => {
                     <WindowManager />
                 </div>
 
-                <Dock />
+                <Dock onLauncherOpen={() => setLauncherOpen(true)} />
+
+                <Launchpad isOpen={launcherOpen} onClose={() => setLauncherOpen(false)} />
 
                 <AnimatePresence>
                     {ctxMenu && (

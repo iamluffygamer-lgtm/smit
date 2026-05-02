@@ -1,6 +1,7 @@
 // src/os/store/windowStore.js
 import { create } from 'zustand';
 import { appRegistry } from '../apps/appRegistry';
+import { APP_CATALOG } from './appStoreStore';
 import { loadState, saveState } from '../system/persistence';
 import { useSystemStateStore } from '../system/systemStateStore';
 
@@ -91,7 +92,7 @@ export const useWindowStore = create((set, get) => ({
 
     openWindow: (appId, targetPos = null, intentData = null) => {
         const { windows, zIndexCounter } = get();
-        const app = appRegistry.find(a => a.id === appId);
+        const app = appRegistry.find(a => a.id === appId) || APP_CATALOG.find(a => a.appId === appId);
         if (!app) return;
 
         const isMobile = useSystemStateStore.getState().isMobileMode;
@@ -99,6 +100,8 @@ export const useWindowStore = create((set, get) => ({
 
         // Mobile: Close all other windows before opening new one
         const currentWindows = isMobile ? [] : windows;
+        
+        const defaultSize = app.defaultSize || { width: 600, height: 500 };
 
         const newWindow = {
             id,
@@ -106,8 +109,8 @@ export const useWindowStore = create((set, get) => ({
             title: app.name,
             x: isMobile ? 0 : 80 + (windows.length * 24),
             y: isMobile ? 0 : 60 + (windows.length * 24),
-            width: isMobile ? '100%' : app.defaultSize.width,
-            height: isMobile ? '100%' : app.defaultSize.height,
+            width: isMobile ? '100%' : defaultSize.width,
+            height: isMobile ? '100%' : defaultSize.height,
             zIndex: zIndexCounter + 1,
             minimized: false,
             maximized: isMobile, // Auto-maximize

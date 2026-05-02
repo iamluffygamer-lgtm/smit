@@ -10,6 +10,10 @@ import Files from '../apps/Files';
 import Music from '../apps/Music';
 import Notes from '../apps/Notes';
 import Games from '../apps/Games';
+import AppStore from '../apps/AppStore';
+import Calculator from '../apps/Calculator';
+import Pomodoro from '../apps/Pomodoro';
+import CodeEditor from '../apps/CodeEditor';
 import { appRegistry } from '../apps/appRegistry';
 
 // Lazy loading or direct mapping
@@ -25,6 +29,10 @@ const apps = {
     'music': Music,
     'notes': Notes,
     'games': Games,
+    'appStore': AppStore,
+    'calculator': Calculator,
+    'pomodoro': Pomodoro,
+    'codeEditor': CodeEditor,
 };
 
 export const WindowContent = ({ appId, intentData }) => {

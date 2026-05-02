@@ -1,6 +1,7 @@
 import React from 'react';
 import { useWindowStore } from '../store/windowStore';
 import { appRegistry } from '../apps/appRegistry';
+import { APP_CATALOG } from '../store/appStoreStore';
 import { DockIcon } from './DockIcon';
 import { useSystemStateStore } from '../system/systemStateStore';
 import { tokens } from '../styles/tokens';
@@ -27,7 +28,7 @@ const styles = {
     }
 };
 
-export const Dock = () => {
+export const Dock = ({ onLauncherOpen }) => {
     const windows = useWindowStore((state) => state.windows);
     const openWindow = useWindowStore((state) => state.openWindow);
     const minimizeWindow = useWindowStore((state) => state.minimizeWindow);
@@ -64,9 +65,38 @@ export const Dock = () => {
         }
     };
 
+    const PINNED_IDS = ['terminal', 'about', 'appStore', 'contact'];
+
+    const pinnedApps = PINNED_IDS
+        .map(id => appRegistry.find(a => a.id === id))
+        .filter(Boolean);
+
+    const runningAppIds = [...new Set(windows.map(w => w.appId))]
+        .filter(id => !PINNED_IDS.includes(id));
+
+    const runningApps = runningAppIds
+        .map(appId => {
+            const app = appRegistry.find(a => a.id === appId);
+            if (app) return app;
+            
+            const storeApp = APP_CATALOG.find(a => a.appId === appId);
+            if (storeApp) return {
+                id: appId,
+                name: storeApp.name,
+                icon: <span>{storeApp.icon}</span>
+            };
+
+            const runningWin = windows.find(w => w.appId === appId);
+            return {
+                id: appId,
+                name: runningWin?.title || appId,
+                icon: <span>◈</span>
+            };
+        });
+
     return (
         <div style={containerStyle}>
-            {appRegistry.map((app) => (
+            {pinnedApps.map((app) => (
                 <DockIcon
                     key={app.id}
                     app={app}
@@ -74,6 +104,33 @@ export const Dock = () => {
                     onClick={handleDockClick}
                 />
             ))}
+
+
+            {runningApps.length > 0 && (
+                <div style={{
+                    width: '1px',
+                    height: '28px',
+                    backgroundColor: tokens.colors.borderSubtle,
+                    margin: '0 6px'
+                }} />
+            )}
+
+            {runningApps.map((app) => (
+                <DockIcon
+                    key={app.id}
+                    app={app}
+                    isActive={isAppActive(app.id)}
+                    onClick={handleDockClick}
+                />
+            ))}
+
+            <div style={{ marginLeft: 'auto' }}>
+                <DockIcon
+                    app={{ id: 'launcher', name: 'Apps', icon: <span>⊞</span> }}
+                    isActive={false}
+                    onClick={() => onLauncherOpen && onLauncherOpen()}
+                />
+            </div>
         </div>
     );
 };
