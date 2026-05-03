@@ -420,6 +420,7 @@ export default function Files() {
         flexShrink: 0,
         overflowY: 'auto',
         scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
       }}>
         <div style={{
           padding: '0 12px 8px',
@@ -464,6 +465,7 @@ export default function Files() {
         flexShrink: 0,
         overflowY: 'auto',
         scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
       }}>
         <div style={{
           padding: '12px 12px 8px',
@@ -587,6 +589,7 @@ export default function Files() {
         padding: '16px',
         overflowY: 'auto',
         scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
       }}>
         {currentFile ? (
           <>
@@ -775,11 +778,18 @@ export default function Files() {
                 />
               </div>
             ) : (
-              currentFile.content.map((line, i) => (
+              currentFile.content.map((line, i) => {
+                const isHeader = line.startsWith('#');
+                const isCodeConfig = currentFile.isCode || currentFile.name.endsWith('.config') || currentFile.name === '.secret';
+                const isMetadata = line.match(/^[A-Z]+\s+/) && line.includes('  ');
+                const isMono = isCodeConfig || isMetadata || line.startsWith('//') || line.startsWith('[');
+
+                return (
                 <div
                   key={i}
                   style={{
-                    fontSize: '12px',
+                    fontFamily: isMono && !isHeader ? tokens.typography.fontMono : tokens.typography.fontSans,
+                    fontSize: isHeader ? '16px' : (isMono ? '12px' : '13px'),
                     lineHeight: '1.8',
                     color: line.startsWith('#')
                       ? tokens.colors.textPrimary
@@ -792,12 +802,12 @@ export default function Files() {
                       : line === ''
                       ? tokens.colors.textTertiary
                       : tokens.colors.textSecondary,
-                    fontWeight: line.startsWith('#') ? 600 : 400,
+                    fontWeight: isHeader ? 700 : 400,
                   }}
                 >
                   {line || '\u00A0'}
                 </div>
-              ))
+              )})
             )}
           </>
         ) : (

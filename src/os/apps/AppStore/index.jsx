@@ -86,6 +86,7 @@ export default function AppStore() {
           padding: '24px',
           overflowY: 'auto',
           scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
         }}>
           {/* Header */}
           <div style={{
@@ -165,9 +166,11 @@ export default function AppStore() {
               // ABOUT
             </div>
             <div style={{
-              fontSize: '13px',
+              fontSize: '14px',
+              fontFamily: tokens.typography.fontSans,
+              fontWeight: 400,
               color: tokens.colors.textSecondary,
-              lineHeight: 1.7,
+              lineHeight: 1.8,
             }}>
               {app.description}
             </div>
@@ -195,12 +198,23 @@ export default function AppStore() {
         justifyContent: 'space-between',
         flexShrink: 0,
       }}>
-        <div style={{
-          fontSize: '10px',
-          color: tokens.colors.textTertiary,
-          letterSpacing: '0.1em',
-        }}>
-          // APP STORE
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <div style={{
+            fontSize: '10px',
+            color: tokens.colors.textTertiary,
+            letterSpacing: '0.1em',
+          }}>
+            // APP STORE
+          </div>
+          <div style={{
+            fontSize: '18px',
+            fontFamily: tokens.typography.fontSans,
+            fontWeight: 700,
+            letterSpacing: '-0.01em',
+            color: tokens.colors.textPrimary,
+          }}>
+            SMIT OS Store
+          </div>
         </div>
         <input
           value={searchQuery}
@@ -225,6 +239,7 @@ export default function AppStore() {
         flex: 1,
         overflowY: 'auto',
         scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
         padding: '16px 20px',
       }}>
         {query ? (
@@ -338,6 +353,7 @@ export default function AppStore() {
                   gap: '10px',
                   overflowX: 'auto',
                   scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
                   paddingBottom: '4px',
                   marginBottom: '24px',
                 }}>
@@ -485,10 +501,10 @@ const AppCard = ({ app, installed, installing, progress, onInstall, onOpen, onSe
       </div>
 
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: '12px', fontWeight: 600, color: tokens.colors.textPrimary }}>
+        <div style={{ fontSize: '15px', fontFamily: tokens.typography.fontSans, fontWeight: 600, letterSpacing: '-0.01em', color: tokens.colors.textPrimary }}>
           {app.name}
         </div>
-        <div style={{ fontSize: '11px', color: tokens.colors.textSecondary, marginTop: '2px' }}>
+        <div style={{ fontSize: '13px', fontFamily: tokens.typography.fontSans, fontWeight: 400, lineHeight: 1.5, color: tokens.colors.textSecondary, marginTop: '2px' }}>
           {app.tagline}
         </div>
         <div style={{ fontSize: '10px', color: tokens.colors.textTertiary, marginTop: '4px' }}>

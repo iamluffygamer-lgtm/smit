@@ -86,6 +86,7 @@ export default function Games() {
       gap: '16px',
       overflowY: 'auto',
       scrollbarWidth: 'none',
+      msOverflowStyle: 'none',
     }}>
       <div>
         <div style={{
@@ -97,6 +98,7 @@ export default function Games() {
           // GAMES
         </div>
         <div style={{
+          fontFamily: tokens.typography.fontSans,
           fontSize: '12px',
           color: tokens.colors.textSecondary,
         }}>
@@ -123,7 +125,8 @@ export default function Games() {
             {game.genre}
           </div>
           <div style={{
-            fontSize: '15px',
+            fontSize: '18px',
+            fontFamily: tokens.typography.fontMono,
             color: tokens.colors.textPrimary,
             fontWeight: 700,
             marginBottom: '6px',
@@ -132,10 +135,11 @@ export default function Games() {
             {game.title}
           </div>
           <div style={{
-            fontSize: '12px',
+            fontFamily: tokens.typography.fontSans,
+            fontSize: '14px',
             color: tokens.colors.textSecondary,
             marginBottom: '12px',
-            lineHeight: 1.5,
+            lineHeight: 1.7,
           }}>
             {game.description}
           </div>

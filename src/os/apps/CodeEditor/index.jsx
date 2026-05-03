@@ -371,6 +371,7 @@ export default function CodeEditor({ intentData }) {
             flex: 1,
             overflowY: 'auto',
             scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
           }}>
             <div style={{
               fontSize: '10px',
@@ -634,6 +635,7 @@ export default function CodeEditor({ intentData }) {
             overflowY: 'auto',
             padding: '8px 12px',
             scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
           }}>
             {consoleLogs.map((log, i) => (
               <div key={i} style={{

@@ -58,8 +58,9 @@ const QuickCard = ({ item, onClick }) => {
         {item.label[0]}
       </div>
       <div style={{
-        fontSize: '11px',
-        fontFamily: tokens.typography.fontMono,
+        fontSize: '12px',
+        fontFamily: tokens.typography.fontSans,
+        fontWeight: 500,
         color: hovered
           ? tokens.colors.textPrimary
           : tokens.colors.textSecondary,
@@ -71,8 +72,8 @@ const QuickCard = ({ item, onClick }) => {
         {item.label}
       </div>
       <div style={{
-        fontSize: '10px',
-        fontFamily: tokens.typography.fontMono,
+        fontSize: '11px',
+        fontFamily: tokens.typography.fontSans,
         color: tokens.colors.textTertiary,
         overflow: 'hidden',
         textOverflow: 'ellipsis',
@@ -209,6 +210,7 @@ export default function Browser({ intentData }) {
           gap: '28px',
           overflowY: 'auto',
           scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
         }}
       >
 

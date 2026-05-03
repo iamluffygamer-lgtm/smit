@@ -60,8 +60,10 @@ export default function Contact() {
         },
         subtitle: {
             color: tokens.colors.textSecondary,
-            fontSize: '13px',
+            fontSize: '14px',
             fontFamily: tokens.typography.fontSans,
+            fontWeight: 400,
+            lineHeight: 1.6,
             margin: '0 0 24px 0',
         },
         rowBase: {
@@ -125,6 +127,8 @@ export default function Contact() {
             color: tokens.colors.textSecondary,
             fontSize: '13px',
             fontFamily: tokens.typography.fontSans,
+            fontWeight: 400,
+            lineHeight: 1.6,
             margin: '0 0 12px 0',
         },
         noticeBottom: {

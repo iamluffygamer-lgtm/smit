@@ -210,6 +210,7 @@ export const Launchpad = ({ isOpen, onClose }) => {
                             height: '100%',
                             overflowY: 'auto',
                             scrollbarWidth: 'none',
+                            msOverflowStyle: 'none',
                         }}
                     >
                         {/* Search Bar */}
