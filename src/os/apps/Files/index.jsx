@@ -4,9 +4,9 @@ import { useWindowStore } from '../../store/windowStore';
 
 const PROJECT_URLS = {
   playlistbridge: 'https://playlistbridge.netlify.app',
-  rmsads:         'https://rmsads.com',
-  answerhunt:     'https://answerhunt.com',
-  smitos:         null,
+  rmsads: 'https://rmsads.com',
+  answerhunt: 'https://answerhunt.com',
+  smitos: null,
 };
 
 const FILE_SYSTEM = {
@@ -266,10 +266,9 @@ const FILES = {
       "that means you're the kind of person",
       'who actually explores things.',
       '',
-      'smit built this entire OS',
-      'at 19, self-taught,',
-      'while everyone else was doing',
-      'tutorial clones.',
+      ' built this entire OS',
+      'at 17, self-taught,',
+
       '',
       "if you're reading this,",
       'you should probably reach out.',
@@ -299,11 +298,11 @@ export default function Files() {
 
   const folderFiles = {
     projects: ['playlistbridge', 'rmsads', 'answerhunt', 'smitos'],
-    docs:     ['resume', 'about', 'contact', 'playlistbridge_pdf', 'rms_pdf', 'secret'],
-    config:   ['stack', 'philosophy'],
-    code:     codeKeys,
-    paint:    paintKeys,
-    notes:    notesKeys,
+    docs: ['resume', 'about', 'contact', 'playlistbridge_pdf', 'rms_pdf', 'secret'],
+    config: ['stack', 'philosophy'],
+    code: codeKeys,
+    paint: paintKeys,
+    notes: notesKeys,
   };
 
   const currentFilesMap = { ...FILES };
@@ -392,7 +391,7 @@ export default function Files() {
     if (!storageKey) return;
 
     const files = JSON.parse(localStorage.getItem(storageKey) || '{}');
-    
+
     if (isCode) {
       if (files.code) delete files.code[selectedFile];
     } else {
@@ -763,7 +762,7 @@ export default function Files() {
                   gap: '12px',
                 }}>
                   <span>TYPE: PDF</span>
-                  <span>PROJECT: {currentFile.name.replace('.pdf','')}</span>
+                  <span>PROJECT: {currentFile.name.replace('.pdf', '')}</span>
                 </div>
                 <iframe
                   src={`${currentFile.url}#toolbar=0`}
@@ -785,29 +784,30 @@ export default function Files() {
                 const isMono = isCodeConfig || isMetadata || line.startsWith('//') || line.startsWith('[');
 
                 return (
-                <div
-                  key={i}
-                  style={{
-                    fontFamily: isMono && !isHeader ? tokens.typography.fontMono : tokens.typography.fontSans,
-                    fontSize: isHeader ? '16px' : (isMono ? '12px' : '13px'),
-                    lineHeight: '1.8',
-                    color: line.startsWith('#')
-                      ? tokens.colors.textPrimary
-                      : line.startsWith('//')
-                      ? 'var(--os-accent)'
-                      : line.startsWith('→')
-                      ? tokens.colors.textSecondary
-                      : line.startsWith('[')
-                      ? 'var(--os-accent)'
-                      : line === ''
-                      ? tokens.colors.textTertiary
-                      : tokens.colors.textSecondary,
-                    fontWeight: isHeader ? 700 : 400,
-                  }}
-                >
-                  {line || '\u00A0'}
-                </div>
-              )})
+                  <div
+                    key={i}
+                    style={{
+                      fontFamily: isMono && !isHeader ? tokens.typography.fontMono : tokens.typography.fontSans,
+                      fontSize: isHeader ? '16px' : (isMono ? '12px' : '13px'),
+                      lineHeight: '1.8',
+                      color: line.startsWith('#')
+                        ? tokens.colors.textPrimary
+                        : line.startsWith('//')
+                          ? 'var(--os-accent)'
+                          : line.startsWith('→')
+                            ? tokens.colors.textSecondary
+                            : line.startsWith('[')
+                              ? 'var(--os-accent)'
+                              : line === ''
+                                ? tokens.colors.textTertiary
+                                : tokens.colors.textSecondary,
+                      fontWeight: isHeader ? 700 : 400,
+                    }}
+                  >
+                    {line || '\u00A0'}
+                  </div>
+                )
+              })
             )}
           </>
         ) : (

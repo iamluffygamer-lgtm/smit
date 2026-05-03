@@ -24,7 +24,7 @@ export default function Settings() {
 
     const handleReset = () => {
         // eslint-disable-next-line no-restricted-globals
-        if (confirm('Reset SMIT OS? All window positions will be cleared.')) {
+        if (confirm('Reset SMIT OS? This will permanently delete ALL saved data: notes, kanban cards, paint files, installed apps, settings, and window layout. This cannot be undone.')) {
             localStorage.clear();
             window.location.reload();
         }

@@ -106,8 +106,12 @@ export default function ApiTester() {
     }
 
     const startTime = Date.now();
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
     try {
-      const res = await fetch(finalUrl, options);
+      const res = await fetch(finalUrl, { ...options, signal: controller.signal });
+      clearTimeout(timeoutId);
       const endTime = Date.now();
       const time = endTime - startTime;
 
@@ -158,13 +162,23 @@ export default function ApiTester() {
 
       saveHistory({ method, url: finalUrl, time: Date.now() });
     } catch (e) {
+      clearTimeout(timeoutId);
       const time = Date.now() - startTime;
-      setResponse({
-        error: e.message,
-        time,
-        status: 0,
-        statusText: 'CORS or Network Error'
-      });
+      if (e.name === 'AbortError') {
+        setResponse({
+          error: 'Request timed out after 30 seconds',
+          time,
+          status: 0,
+          statusText: 'Timeout'
+        });
+      } else {
+        setResponse({
+          error: e.message,
+          time,
+          status: 0,
+          statusText: 'CORS or Network Error'
+        });
+      }
     } finally {
       setIsLoading(false);
     }

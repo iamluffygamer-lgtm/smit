@@ -7,6 +7,7 @@ import { Clock } from '../system/Clock';
 import { tokens } from '../styles/tokens';
 import { useWindowStore } from '../store/windowStore';
 import { useSettingsStore } from '../store/settingsStore';
+import { useNotificationStore } from '../system/notificationStore';
 import { CommandPalette } from './CommandPalette';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IconTerminal } from '../icons/IconTerminal';
@@ -205,6 +206,7 @@ export const Desktop = () => {
     const wallpaper = useSettingsStore(state => state.wallpaper);
     const brightness = useSettingsStore(state => state.brightness);
     const uiScale = useSettingsStore(state => state.uiScale);
+    const { notifications, removeNotification } = useNotificationStore();
 
     const [ctxMenu, setCtxMenu] = useState(null);
     const [showToast, setShowToast] = useState(false);
@@ -598,6 +600,75 @@ export const Desktop = () => {
                         </motion.div>
                     )}
                 </AnimatePresence>
+
+                {/* NOTIFICATION TOASTS */}
+                <div style={{
+                  position: 'fixed',
+                  top: '48px',
+                  right: '16px',
+                  zIndex: 99996,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                  pointerEvents: 'none',
+                }}>
+                  <AnimatePresence>
+                    {notifications.map(n => (
+                      <motion.div
+                        key={n.id}
+                        initial={{ opacity: 0, x: 60, scale: 0.95 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        exit={{ opacity: 0, x: 60, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          padding: '10px 14px',
+                          backgroundColor: tokens.colors.bgElevated,
+                          border: `1px solid ${
+                            n.type === 'success' ? 'rgba(74,222,128,0.3)' :
+                            n.type === 'error'   ? 'rgba(248,113,113,0.3)' :
+                                                    tokens.colors.borderDefault
+                          }`,
+                          borderRadius: '2px',
+                          boxShadow: tokens.shadowMd,
+                          minWidth: '220px',
+                          maxWidth: '300px',
+                          pointerEvents: 'auto',
+                        }}
+                      >
+                        <div style={{
+                          width: '6px', height: '6px',
+                          borderRadius: '50%',
+                          backgroundColor:
+                            n.type === 'success' ? '#4ADE80' :
+                            n.type === 'error'   ? '#F87171' :
+                                                    'var(--os-accent)',
+                          flexShrink: 0,
+                        }} />
+                        <div style={{
+                          fontSize: '11px',
+                          fontFamily: tokens.typography.fontMono,
+                          color: tokens.colors.textSecondary,
+                          flex: 1,
+                          lineHeight: 1.4,
+                        }}>
+                          {n.message}
+                        </div>
+                        <div
+                          onClick={() => removeNotification(n.id)}
+                          style={{
+                            color: tokens.colors.textDisabled,
+                            fontSize: '14px',
+                            cursor: 'pointer',
+                            lineHeight: 1,
+                          }}
+                        >×</div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
             </div>
 
             {/* BRIGHTNESS OVERLAY */}

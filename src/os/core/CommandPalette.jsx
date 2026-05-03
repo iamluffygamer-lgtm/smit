@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { appRegistry } from '../apps/appRegistry';
+import { APP_CATALOG, useAppStoreStore } from '../store/appStoreStore';
 import { projects } from '../apps/Projects/projects.data';
 import { tokens } from '../styles/tokens';
 import { useSettingsStore } from '../store/settingsStore';
@@ -13,6 +14,7 @@ export const CommandPalette = ({ openWindow }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const inputRef = useRef(null);
 
+    const isInstalled = useAppStoreStore(state => state.isInstalled);
     const setBrightness = useSettingsStore(s => s.setBrightness);
     const setUiScale = useSettingsStore(s => s.setUiScale);
 
@@ -92,10 +94,10 @@ export const CommandPalette = ({ openWindow }) => {
     };
 
     const buildResults = () => {
-        const results = [];
+        const registryResults = [];
 
         appRegistry.forEach(app => {
-            results.push({
+            registryResults.push({
                 type: 'app',
                 label: app.name,
                 sub: 'Open application',
@@ -108,9 +110,25 @@ export const CommandPalette = ({ openWindow }) => {
             });
         });
 
+        const installedStoreApps = APP_CATALOG
+            .filter(app => isInstalled(app.id))
+            .map(app => ({
+                type: 'app',
+                label: app.name,
+                sub: 'Open application',
+                appId: app.appId,
+                icon: app.icon,
+                action: () => {
+                    openWindow(app.appId);
+                    setIsOpen(false);
+                }
+            }));
+
+        const actionResults = [];
+
         projects.forEach(project => {
             if (project.url) {
-                results.push({
+                actionResults.push({
                     type: 'project',
                     label: project.name,
                     sub: project.tagline,
@@ -124,7 +142,7 @@ export const CommandPalette = ({ openWindow }) => {
             }
         });
 
-        results.push(
+        actionResults.push(
             {
                 type: 'action',
                 label: 'Copy Email',
@@ -157,10 +175,12 @@ export const CommandPalette = ({ openWindow }) => {
             }
         );
 
-        if (!query) return results.slice(0, 8);
+        const allResults = [...registryResults, ...installedStoreApps, ...actionResults];
+
+        if (!query) return allResults.slice(0, 8);
 
         const lowerQuery = query.toLowerCase();
-        const filteredResults = results.filter(r => 
+        const filteredResults = allResults.filter(r => 
             r.label.toLowerCase().includes(lowerQuery) || 
             r.sub.toLowerCase().includes(lowerQuery)
         );

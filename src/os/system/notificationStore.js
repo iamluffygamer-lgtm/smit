@@ -1,9 +1,25 @@
 import { create } from 'zustand';
 
-export const useNotificationStore = create((set, get) => ({
+let nextId = 1;
+
+export const useNotificationStore = create((set) => ({
   notifications: [],
+
   addNotification: (message, type = 'info', duration = 3000) => {
-    // stub — full implementation coming in Layer 4
-    console.log('[notification]', type, message);
+    const id = nextId++;
+    set(state => ({
+      notifications: [...state.notifications, { id, message, type, duration }]
+    }));
+    setTimeout(() => {
+      set(state => ({
+        notifications: state.notifications.filter(n => n.id !== id)
+      }));
+    }, duration + 400);
+  },
+
+  removeNotification: (id) => {
+    set(state => ({
+      notifications: state.notifications.filter(n => n.id !== id)
+    }));
   },
 }));

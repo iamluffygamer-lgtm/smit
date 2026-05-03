@@ -35,19 +35,28 @@ export default function Calculator() {
 
     const eq = () => {
         if (!oper) return;
-        try {
-            let exprStr = `${prev}${oper}${cur}`;
-            // Convert display operators to JS operators for eval
-            exprStr = exprStr.replace(/÷/g, '/').replace(/×/g, '*').replace(/−/g, '-');
-            const result = eval(exprStr);
-            setExpr(`${prev} ${oper} ${cur} =`);
-            setCur(String(parseFloat(result.toFixed(8))));
-            setOper('');
-            setFresh(true);
-        } catch (e) {
-            setCur('Error');
-            setFresh(true);
+        
+        let result;
+        const a = parseFloat(prev);
+        const b = parseFloat(cur);
+        switch(oper) {
+            case '+': result = a + b; break;
+            case '−': result = a - b; break;
+            case '×': result = a * b; break;
+            case '÷': result = b !== 0 ? a / b : 'Error'; break;
+            default:  result = b;
         }
+
+        setExpr(`${prev} ${oper} ${cur} =`);
+        
+        if (result === 'Error') {
+            setCur('Error');
+        } else {
+            setCur(String(parseFloat(result.toFixed(8))));
+        }
+        
+        setOper('');
+        setFresh(true);
     };
 
     const clr = () => {

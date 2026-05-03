@@ -13,6 +13,14 @@ export default function Notes({ intentData }) {
   const textareaRef = useRef(null);
   const cursorMap = useRef({});
 
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+    };
+  }, []);
+
   // Load from localStorage on mount & slot change
   useEffect(() => {
     const savedData = localStorage.getItem(getStorageKey(slot));

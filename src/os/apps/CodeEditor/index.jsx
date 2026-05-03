@@ -49,6 +49,15 @@ export default function CodeEditor({ intentData }) {
   const iframeRef = useRef(null);
   const openWindow = useWindowStore(state => state.openWindow);
   const addNotification = useNotificationStore(state => state.addNotification);
+  const blobUrlRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current);
+      }
+    };
+  }, []);
 
   // Autosave to localStorage
   useEffect(() => {
@@ -135,9 +144,15 @@ export default function CodeEditor({ intentData }) {
     });
 
     setTimeout(() => {
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current);
+        blobUrlRef.current = null;
+      }
       const blob = new Blob([code], { type: 'text/html' });
       const url = URL.createObjectURL(blob);
+      blobUrlRef.current = url;
       setDeployedUrl(url);
+      window.open(url, '_blank');
 
       addLog('', 'info');
       addLog('  ✓ Build complete', 'success');

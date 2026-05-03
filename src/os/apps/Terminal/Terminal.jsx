@@ -73,10 +73,15 @@ export const Terminal = () => {
     const openWindow = useWindowStore(state => state.openWindow);
     const inputRef = useRef(null);
     const outputRef = useRef(null);
+    const saveRef = useRef(null);
 
     // Save history to persistence whenever it changes
     useEffect(() => {
-        saveState({ terminalHistory: history });
+        if (saveRef.current) clearTimeout(saveRef.current);
+        saveRef.current = setTimeout(() => {
+            saveState({ terminalHistory: history.slice(-300) });
+        }, 1500);
+        return () => clearTimeout(saveRef.current);
     }, [history]);
 
     // Auto-scroll to bottom
