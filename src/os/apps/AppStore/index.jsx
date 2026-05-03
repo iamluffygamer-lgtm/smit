@@ -25,8 +25,8 @@ export default function AppStore() {
   };
 
   const featuredApp = APP_CATALOG.find(a => a.featured);
-  const utilities = APP_CATALOG.filter(a => a.category === 'UTILITIES');
   const installedApps = APP_CATALOG.filter(a => isInstalled(a.id));
+  const categories = [...new Set(APP_CATALOG.map(a => a.category))];
 
   const query = searchQuery.toLowerCase();
   const searchResults = APP_CATALOG.filter(a => 
@@ -433,27 +433,36 @@ export default function AppStore() {
               </>
             )}
 
-            {/* UTILITIES SECTION */}
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
-              <div style={{ fontSize: '10px', color: tokens.colors.textTertiary, letterSpacing: '0.1em' }}>
-                UTILITIES
-              </div>
-              <div style={{ flex: 1, height: '1px', backgroundColor: tokens.colors.bgElevated, marginLeft: '12px' }} />
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-              {utilities.map(app => (
-                <AppCard
-                  key={app.id}
-                  app={app}
-                  installed={isInstalled(app.id)}
-                  installing={installing === app.id}
-                  progress={progress}
-                  onInstall={() => handleInstall(app)}
-                  onOpen={() => openWindow(app.appId)}
-                  onSelect={() => setSelectedApp(app)}
-                />
-              ))}
-            </div>
+            {/* DYNAMIC CATEGORY SECTIONS */}
+            {categories.map((category, index) => {
+              const categoryApps = APP_CATALOG.filter(a => a.category === category);
+              if (categoryApps.length === 0) return null;
+              
+              return (
+                <React.Fragment key={category}>
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px', marginTop: index > 0 ? '24px' : '0' }}>
+                    <div style={{ fontSize: '10px', color: tokens.colors.textTertiary, letterSpacing: '0.1em' }}>
+                      {category}
+                    </div>
+                    <div style={{ flex: 1, height: '1px', backgroundColor: tokens.colors.bgElevated, marginLeft: '12px' }} />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    {categoryApps.map(app => (
+                      <AppCard
+                        key={app.id}
+                        app={app}
+                        installed={isInstalled(app.id)}
+                        installing={installing === app.id}
+                        progress={progress}
+                        onInstall={() => handleInstall(app)}
+                        onOpen={() => openWindow(app.appId)}
+                        onSelect={() => setSelectedApp(app)}
+                      />
+                    ))}
+                  </div>
+                </React.Fragment>
+              );
+            })}
           </>
         )}
       </div>

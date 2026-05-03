@@ -14,8 +14,13 @@ import AppStore from '../apps/AppStore';
 import Calculator from '../apps/Calculator';
 import Pomodoro from '../apps/Pomodoro';
 import CodeEditor from '../apps/CodeEditor';
-import { appRegistry } from '../apps/appRegistry';
-
+import JsonFormatter from '../apps/JsonFormatter';
+import ApiTester from '../apps/ApiTester';
+import JwtDecoder from '../apps/JwtDecoder';
+import RegexTester from '../apps/RegexTester';
+import ColorPicker from '../apps/ColorPicker';
+import CssGradient from '../apps/CssGradient';
+import Kanban from '../apps/Kanban';
 // Lazy loading or direct mapping
 const apps = {
     'terminal': Terminal,
@@ -33,6 +38,14 @@ const apps = {
     'calculator': Calculator,
     'pomodoro': Pomodoro,
     'codeEditor': CodeEditor,
+    'jsonFormatter': JsonFormatter,
+    'apiTester': ApiTester,
+    'jwtDecoder': JwtDecoder,
+    'regexTester': RegexTester,
+    'colorPicker': ColorPicker,
+    'cssGradient': CssGradient,
+    'kanban': Kanban,
+
 };
 
 export const WindowContent = ({ appId, intentData }) => {
