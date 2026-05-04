@@ -21,6 +21,9 @@ import RegexTester from '../apps/RegexTester';
 import ColorPicker from '../apps/ColorPicker';
 import CssGradient from '../apps/CssGradient';
 import Kanban from '../apps/Kanban';
+import QrGenerator from '../apps/QrGenerator';
+import AsciiArt from '../apps/AsciiArt';
+import PixelCanvas from '../apps/PixelCanvas';
 // Lazy loading or direct mapping
 const apps = {
     'terminal': Terminal,
@@ -45,7 +48,9 @@ const apps = {
     'colorPicker': ColorPicker,
     'cssGradient': CssGradient,
     'kanban': Kanban,
-
+    'qrGenerator': QrGenerator,
+    'asciiArt': AsciiArt,
+    'pixelCanvas': PixelCanvas,
 };
 
 export const WindowContent = ({ appId, intentData }) => {
