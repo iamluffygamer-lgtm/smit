@@ -40,6 +40,7 @@ export default function Music() {
       fontFamily: tokens.typography.fontMono,
       overflowY: 'auto',
       scrollbarWidth: 'none',
+      msOverflowStyle: 'none',
     }}>
       {/* HEADER */}
       <div style={{
@@ -55,9 +56,11 @@ export default function Music() {
           // MUSIC
         </div>
         <div style={{
-          fontSize: '18px',
+          fontSize: '20px',
+          fontFamily: tokens.typography.fontSans,
           color: tokens.colors.textPrimary,
-          fontWeight: 600,
+          fontWeight: 700,
+          letterSpacing: '-0.01em',
           marginBottom: '4px',
         }}>
           PlaylistBridge Player

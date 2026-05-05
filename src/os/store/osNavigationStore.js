@@ -73,8 +73,7 @@ export const useOsNavigationStore = create((set, get) => ({
                 "(prefers-reduced-motion: reduce)"
             ).matches;
 
-            const shouldBeMobile =
-                width <= 768 || isTouch || reducedMotion;
+            const shouldBeMobile = width <= 768 || isTouch;
 
             const currentMode = get().mode;
 

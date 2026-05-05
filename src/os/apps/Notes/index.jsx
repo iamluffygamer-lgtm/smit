@@ -13,6 +13,14 @@ export default function Notes({ intentData }) {
   const textareaRef = useRef(null);
   const cursorMap = useRef({});
 
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+    };
+  }, []);
+
   // Load from localStorage on mount & slot change
   useEffect(() => {
     const savedData = localStorage.getItem(getStorageKey(slot));
@@ -275,9 +283,10 @@ export default function Notes({ intentData }) {
           resize: 'none',
           padding: '20px',
           color: tokens.colors.textPrimary,
-          fontFamily: tokens.typography.fontMono,
-          fontSize: '13px',
-          lineHeight: '1.8',
+          fontFamily: tokens.typography.fontSans,
+          fontSize: '14px',
+          fontWeight: 400,
+          lineHeight: '1.9',
           scrollbarWidth: 'none',
         }}
       />

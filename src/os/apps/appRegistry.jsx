@@ -1,4 +1,5 @@
 import React from 'react';
+import AppStore from './AppStore';
 import { IconAbout } from '../icons/IconAbout';
 import { IconProjects } from '../icons/IconProjects';
 import { IconTerminal } from '../icons/IconTerminal';
@@ -77,5 +78,13 @@ export const appRegistry = [
         icon: <span>▶</span>,
         defaultSize: { width: 700, height: 520 },
         defaultPosition: { x: 160, y: 80 }
+    },
+    {
+        id: 'appStore',
+        name: 'App Store',
+        icon: '◈',
+        defaultSize: { width: 480, height: 580 },
+        defaultPosition: { x: 200, y: 80 },
+        Component: AppStore,
     }
 ];

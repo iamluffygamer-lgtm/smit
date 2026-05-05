@@ -48,8 +48,9 @@ export default function Projects() {
         name: {
             color: tokens.colors.textPrimary,
             fontSize: '18px',
-            fontFamily: tokens.typography.fontMono,
+            fontFamily: tokens.typography.fontSans,
             fontWeight: 700,
+            letterSpacing: '-0.01em',
             margin: 0,
         },
         category: {
@@ -64,17 +65,19 @@ export default function Projects() {
             backgroundColor: 'rgba(232,160,32,0.1)',
         },
         tagline: {
-            color: '#F0EDE8',
+            color: tokens.colors.textSecondary,
             fontSize: '14px',
-            fontFamily: "'DM Sans', system-ui, sans-serif",
-            fontWeight: 500,
+            fontFamily: tokens.typography.fontSans,
+            fontWeight: 400,
+            lineHeight: 1.6,
             margin: 0,
         },
         description: {
-            color: '#9C9590',
+            color: tokens.colors.textSecondary,
             fontSize: '13px',
-            fontFamily: "'DM Sans', system-ui, sans-serif",
-            lineHeight: 1.6,
+            fontFamily: tokens.typography.fontSans,
+            fontWeight: 400,
+            lineHeight: 1.7,
             margin: 0,
         },
         statsRow: {

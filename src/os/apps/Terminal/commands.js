@@ -373,6 +373,86 @@ export const commands = [
   },
 
   {
+    name: 'npm',
+    description: 'Node package manager',
+    execute: ({ api, args }) => {
+      const sub = args[0];
+      const sub2 = args[1];
+      
+      api.print('');
+
+      if (sub === 'run' && sub2 === 'dev') {
+        api.print('  > smit-os-playground@1.0.0 dev');
+        api.print('  > vite');
+        api.print('');
+        
+        // Fake timing with setTimeout
+        setTimeout(() => {
+          api.print('    VITE v5.4.0  ready in ' + (Math.floor(Math.random() * 80) + 60) + 'ms');
+          api.print('');
+          api.print('    ➜  Local:   http://localhost:5173/');
+          api.print('    ➜  Network: http://192.168.1.1:5173/');
+          api.print('');
+          api.print('    Opening preview in Browser...');
+          setTimeout(() => api.openWindow('browser'), 1000);
+        }, 600);
+        return;
+      }
+
+      if (sub === 'install' || sub === 'i') {
+        const pkg = args[1] || 'dependencies';
+        api.print('  npm warn idealTree already exists');
+        setTimeout(() => {
+          api.print('  added ' + (Math.floor(Math.random() * 200) + 100) + ' packages in ' + (Math.random() * 3 + 1).toFixed(1) + 's');
+          api.print('');
+        }, 800);
+        return;
+      }
+
+      if (sub === 'start') {
+        api.print('  Use "npm run dev" to start the dev server');
+        api.print('');
+        return;
+      }
+
+      api.print('  Usage:');
+      api.print('  npm run dev     — start dev server');
+      api.print('  npm install     — install packages');
+      api.print('');
+    }
+  },
+
+  {
+    name: 'git',
+    description: 'Version control system',
+    execute: ({ api, args }) => {
+      const sub = args[0];
+      api.print('');
+      
+      if (sub === 'status') {
+        api.print('  On branch main');
+        api.print('  Your branch is up to date with origin/main');
+        api.print('');
+        api.print('  nothing to commit, working tree clean');
+      } else if (sub === 'log') {
+        api.print('  commit a3f2b1c (HEAD -> main, origin/main)');
+        api.print('  Author: Smit Patil <pilgrim3201@gmail.com>');
+        api.print('  Date:   ' + new Date().toDateString());
+        api.print('');
+        api.print('      ship it');
+      } else if (sub === 'commit') {
+        api.print('  [main ' + Math.random().toString(36).substr(2,7) + '] ' + (args.slice(2).join(' ') || 'update'));
+        api.print('  1 file changed, 1 insertion(+)');
+      } else {
+        api.print('  git status  — check status');
+        api.print('  git log     — view history');
+        api.print('  git commit  — commit changes');
+      }
+      api.print('');
+    }
+  },
+
+  {
     name: 'matrix',
     description: '???',
     execute: ({ api }) => {

@@ -45,7 +45,7 @@ export const tokens = {
 
   typography: {
     fontMono: "'JetBrains Mono', 'Courier New', monospace",
-    fontSans: "'DM Sans', system-ui, sans-serif",
+    fontSans: "'DM Sans', 'Inter', system-ui, sans-serif",
     size: {
       xxs: '10px', xs: '11px', sm: '12px',
       md: '13px', base: '14px', lg: '16px',
@@ -56,8 +56,20 @@ export const tokens = {
       semibold: '600', bold: '700',
     },
     lineHeight: {
-      tight: '1.2', normal: '1.5', loose: '1.8',
+      tight: '1.2', snug: '1.4', normal: '1.6',
+      relaxed: '1.8', loose: '2.0',
     },
+    roles: {
+      osLabel:   { fontFamily: "'JetBrains Mono', monospace", fontSize: '10px', fontWeight: '500', letterSpacing: '0.10em', lineHeight: '1.4' },
+      osValue:   { fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', fontWeight: '500', letterSpacing: '0.02em', lineHeight: '1.4' },
+      osTitle:   { fontFamily: "'JetBrains Mono', monospace", fontSize: '13px', fontWeight: '600', letterSpacing: '0.04em', lineHeight: '1.4' },
+      osCode:    { fontFamily: "'JetBrains Mono', monospace", fontSize: '12px', fontWeight: '400', letterSpacing: '0',      lineHeight: '1.7' },
+      
+      appTitle:  { fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '20px', fontWeight: '700', letterSpacing: '-0.01em', lineHeight: '1.2' },
+      appSubtitle:{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '15px', fontWeight: '600', letterSpacing: '-0.01em', lineHeight: '1.3' },
+      appBody:   { fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '14px', fontWeight: '400', letterSpacing: '0',       lineHeight: '1.8' },
+      appCaption:{ fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '12px', fontWeight: '400', letterSpacing: '0',       lineHeight: '1.6' },
+    }
   },
 
   spacing: {
