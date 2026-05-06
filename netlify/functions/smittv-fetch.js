@@ -66,18 +66,29 @@ const fetchVideosForCategory = async (query, category) => {
   try {
     const ytRes = await fetch(
       `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`,
-      { 
+      {
         headers: { 'Accept-Language': 'en-US,en;q=0.9', 'User-Agent': 'Mozilla/5.0' },
         signal: AbortSignal.timeout(5000),
       }
     );
     const html = await ytRes.text();
-    const matches = [...html.matchAll(/"videoId":"([a-zA-Z0-9_-]{11})"/g)];
-    const ids = [...new Set(matches.map(m => m[1]))].slice(0, 15);
-    
-    return ids.map(id => ({
+
+    const videoRegex = /"videoId":"([a-zA-Z0-9_-]{11})"[^}]{0,300}?"text":"([^"]{1,200})"/g;
+    const seen = new Set();
+    const videos = [];
+    let match;
+    while ((match = videoRegex.exec(html)) !== null) {
+      const [, id, title] = match;
+      if (!seen.has(id)) {
+        seen.add(id);
+        videos.push({ id, title });
+      }
+      if (videos.length >= 15) break;
+    }
+
+    return videos.map(({ id, title }) => ({
       id,
-      title: 'Video',
+      title,
       channel: '',
       thumbnail: `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
       views: '', duration: '', published: '',
