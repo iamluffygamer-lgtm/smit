@@ -82,7 +82,7 @@ exports.handler = async (event) => {
     const html = await response.text();
 
     // Extract ytInitialData
-    const match = html.match(/var ytInitialData = ({.+?});<\/script>/s);
+    const match = html.match(/var ytInitialData = (\{.+?\});<\/script>/s);
     if (!match) {
       throw new Error('Could not parse YouTube response');
     }
