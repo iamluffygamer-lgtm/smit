@@ -25,9 +25,29 @@ export default function SmitTV() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('feed'); // feed | history
   const [playerReady, setPlayerReady] = useState(false);
+  const [systemMsg, setSystemMsg] = useState(null);
+  const [sessionStart] = useState(Date.now());
+  const [sessionObservation, setSessionObservation] = useState(null);
+  const [totalWatchTime, setTotalWatchTime] = useState(0);
   
   const watchStartRef = useRef(null);
   const watchTimerRef = useRef(null);
+
+  const getTopCategory = (prefs) => {
+    return Object.entries(prefs)
+      .sort(([,a],[,b]) => b - a)[0]?.[0] || 'mixed';
+  };
+
+  useEffect(() => {
+    if (totalWatchTime > 0 && totalWatchTime % 600 === 0) {
+      const topCat = getTopCategory(preferences);
+      const mins = Math.round(totalWatchTime / 60);
+      setSessionObservation(
+        `You've been exploring ${topCat} content for ${mins} minutes`
+      );
+      setTimeout(() => setSessionObservation(null), 5000);
+    }
+  }, [totalWatchTime]);
 
   // Fetch videos for all categories on mount
   useEffect(() => {
@@ -79,15 +99,20 @@ export default function SmitTV() {
     // Check watch time every 5 seconds
     watchTimerRef.current = setInterval(() => {
       if (watchStartRef.current && currentVideo) {
+        setTotalWatchTime(prev => prev + 5);
         const duration = (Date.now() - watchStartRef.current) / 1000;
         if (duration > 30) {
-          const updatedPrefs = updatePreferences(
+          const { prefs: updatedPrefs, message } = updatePreferences(
             preferences,
             currentVideo.category,
             duration
           );
           setPreferences(updatedPrefs);
           savePreferences(updatedPrefs);
+          if (message) {
+            setSystemMsg(message);
+            setTimeout(() => setSystemMsg(null), 3000);
+          }
         }
       }
     }, 5000);
@@ -136,7 +161,53 @@ export default function SmitTV() {
       backgroundColor: tokens.colors.bgSurface,
       fontFamily: tokens.typography.fontMono,
       overflow: 'hidden',
+      position: 'relative',
     }}>
+
+      {(systemMsg || sessionObservation) && (
+        <div style={{
+          position: 'absolute',
+          top: '48px',
+          right: '12px',
+          zIndex: 100,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '6px',
+          pointerEvents: 'none',
+        }}>
+          {systemMsg && (
+            <div style={{
+              padding: '6px 12px',
+              backgroundColor: 'rgba(0,0,0,0.7)',
+              border: '1px solid rgba(var(--os-accent-rgb, 232,160,32), 0.3)',
+              borderRadius: '2px',
+              fontFamily: tokens.typography.fontMono,
+              fontSize: '10px',
+              color: 'var(--os-accent)',
+              letterSpacing: '0.08em',
+              opacity: 0.85,
+              backdropFilter: 'blur(8px)',
+            }}>
+              {'> ' + systemMsg}
+            </div>
+          )}
+          {sessionObservation && (
+            <div style={{
+              padding: '6px 12px',
+              backgroundColor: 'rgba(0,0,0,0.7)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '2px',
+              fontFamily: tokens.typography.fontMono,
+              fontSize: '10px',
+              color: tokens.colors.textTertiary,
+              letterSpacing: '0.06em',
+              backdropFilter: 'blur(8px)',
+            }}>
+              {'// ' + sessionObservation}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* TOP BAR */}
       <div style={{

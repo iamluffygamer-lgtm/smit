@@ -94,23 +94,32 @@ const seededShuffle = (arr, seed) => {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 export const updatePreferences = (preferences, watchedCategory, watchDuration) => {
-  // Only update if watched > 30 seconds
-  if (watchDuration < 30) return preferences;
+  if (watchDuration < 30) return { prefs: preferences, message: null };
   
   const updated = { ...preferences };
-  
-  // Reward watched category
   const reward = watchDuration > 120 ? 0.15 : 0.08;
   updated[watchedCategory] = Math.min(1.0, (updated[watchedCategory] || 0.1) + reward);
   
-  // Decay all other categories slightly
   CATEGORIES.forEach(cat => {
     if (cat !== watchedCategory) {
       updated[cat] = Math.max(0.01, (updated[cat] || 0.1) - 0.02);
     }
   });
+
+  // Generate system message
+  const messages = watchDuration > 120 ? [
+    `${watchedCategory} affinity increased`,
+    `Long-form ${watchedCategory} preference detected`,
+    `Deep interest in ${watchedCategory} noted`,
+    `Feed recalibrating toward ${watchedCategory}`,
+  ] : [
+    `${watchedCategory} signal received`,
+    `Feed adapting to recent activity`,
+    `${watchedCategory} weight updated`,
+  ];
   
-  return updated;
+  const message = messages[Math.floor(Math.random() * messages.length)];
+  return { prefs: updated, message };
 };
 
 // Manual boost — when user clicks a category chip
