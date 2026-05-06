@@ -4,6 +4,90 @@ const CATEGORIES = [
   'documentary', 'startups',
 ];
 
+export const FEED_MODES = {
+  DEEP_WORK: {
+    label: 'DEEP WORK',
+    icon: '⬡',
+    description: 'Focus mode. Technical content prioritized.',
+    boosts: { coding: 0.4, science: 0.3, documentary: 0.2 },
+    suppresses: { funny: 0.6, music: 0.5, gaming: 0.5 },
+  },
+  CHAOS: {
+    label: 'CHAOS',
+    icon: '◈',
+    description: 'Maximum variety. Category switching enabled.',
+    boosts: { funny: 0.3, gaming: 0.3, music: 0.2 },
+    suppresses: { documentary: 0.3 },
+    randomize: true,
+  },
+  INSPIRE: {
+    label: 'INSPIRE',
+    icon: '△',
+    description: 'Motivation and creation. Ideas over execution.',
+    boosts: { motivation: 0.4, startups: 0.3, design: 0.3 },
+    suppresses: { gaming: 0.4, funny: 0.3 },
+  },
+  LEARN: {
+    label: 'LEARN',
+    icon: '◎',
+    description: 'Educational content. Long-form preferred.',
+    boosts: { coding: 0.3, science: 0.4, tech: 0.3 },
+    suppresses: { funny: 0.5, music: 0.4, gaming: 0.5 },
+  },
+  CHILL: {
+    label: 'CHILL',
+    icon: '○',
+    description: 'Low effort. Music and light content.',
+    boosts: { music: 0.5, funny: 0.3, documentary: 0.2 },
+    suppresses: { coding: 0.4, science: 0.3 },
+  },
+};
+
+export const applyFeedMode = (preferences, mode) => {
+  if (!mode || !FEED_MODES[mode]) return preferences;
+  const config = FEED_MODES[mode];
+  const updated = { ...preferences };
+  
+  Object.entries(config.boosts || {}).forEach(([cat, boost]) => {
+    updated[cat] = Math.min(1.0, (updated[cat] || 0.1) + boost);
+  });
+  Object.entries(config.suppresses || {}).forEach(([cat, suppress]) => {
+    updated[cat] = Math.max(0.01, (updated[cat] || 0.1) - suppress);
+  });
+  
+  return updated;
+};
+
+export const getArchetype = (preferences) => {
+  const normalized = normalize(preferences);
+  const techScore = (normalized.coding||0) + (normalized.tech||0) + (normalized.science||0);
+  const createScore = (normalized.design||0) + (normalized.startups||0) + (normalized.motivation||0);
+  const entertainScore = (normalized.music||0) + (normalized.gaming||0) + (normalized.funny||0);
+  const learnScore = (normalized.documentary||0) + (normalized.science||0) + (normalized.coding||0);
+
+  const scores = {
+    'Builder': techScore + createScore * 0.5,
+    'Explorer': learnScore + entertainScore * 0.3,
+    'Creator': createScore + (normalized.design||0),
+    'Researcher': learnScore + techScore * 0.5,
+  };
+  
+  const archetype = Object.entries(scores)
+    .sort(([,a],[,b]) => b - a)[0][0];
+
+  const insights = {
+    Builder: ['High technical curiosity detected', 'Build-oriented content preference', 'Low entertainment bias'],
+    Explorer: ['Broad category exploration detected', 'Diverse content appetite', 'High intellectual curiosity'],
+    Creator: ['Design and creation affinity noted', 'Inspiration-seeking behavior', 'Aesthetic content preference'],
+    Researcher: ['Long-form learning preference', 'Deep dive behavior detected', 'Knowledge accumulation pattern'],
+  };
+
+  return {
+    archetype,
+    insight: insights[archetype][Math.floor(Math.random() * 3)],
+  };
+};
+
 const STORAGE_KEY = 'smittv-preferences';
 const HISTORY_KEY = 'smittv-history';
 

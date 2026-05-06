@@ -6,6 +6,7 @@ import {
   updatePreferences, boostCategory, addToHistory,
   getHistory, getAlgorithmExplanation, CATEGORIES,
   generateRandomPreferences, normalize,
+  applyFeedMode, FEED_MODES, getArchetype,
 } from './algorithm';
 
 const NETLIFY_FUNCTION = '/.netlify/functions/smittv-fetch';
@@ -29,6 +30,7 @@ export default function SmitTV() {
   const [sessionStart] = useState(Date.now());
   const [sessionObservation, setSessionObservation] = useState(null);
   const [totalWatchTime, setTotalWatchTime] = useState(0);
+  const [feedMode, setFeedMode] = useState(null);
   
   const watchStartRef = useRef(null);
   const watchTimerRef = useRef(null);
@@ -57,13 +59,16 @@ export default function SmitTV() {
   // Rebuild feed when videos or preferences change
   useEffect(() => {
     if (Object.keys(videosByCategory).length > 0) {
-      const newFeed = buildFeed(videosByCategory, preferences);
+      const effectivePrefs = feedMode 
+        ? applyFeedMode(preferences, feedMode) 
+        : preferences;
+      const newFeed = buildFeed(videosByCategory, effectivePrefs);
       setFeed(newFeed);
       if (!currentVideo && newFeed.length > 0) {
         setCurrentVideo(newFeed[0]);
       }
     }
-  }, [videosByCategory, preferences]);
+  }, [videosByCategory, preferences, feedMode]);
 
   const fetchAllCategories = async () => {
     setLoading(true);
@@ -686,6 +691,50 @@ export default function SmitTV() {
                 Drag sliders or click categories to boost.
               </div>
 
+              <div style={{ marginBottom: '20px' }}>
+                <div style={{
+                  fontSize: '10px',
+                  color: tokens.colors.textTertiary,
+                  letterSpacing: '0.1em',
+                  marginBottom: '10px',
+                }}>
+                  // FEED MODE
+                </div>
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                  {Object.entries(FEED_MODES).map(([key, mode]) => (
+                    <div
+                      key={key}
+                      onClick={() => setFeedMode(feedMode === key ? null : key)}
+                      style={{
+                        padding: '5px 10px',
+                        border: `1px solid ${feedMode === key ? 
+                          'var(--os-accent)' : tokens.colors.borderSubtle}`,
+                        borderRadius: '2px',
+                        fontSize: '10px',
+                        fontFamily: tokens.typography.fontMono,
+                        color: feedMode === key ? 'var(--os-accent)' : tokens.colors.textTertiary,
+                        cursor: 'pointer',
+                        backgroundColor: feedMode === key ? 
+                          'rgba(232,160,32,0.08)' : 'transparent',
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      {mode.icon} {mode.label}
+                    </div>
+                  ))}
+                </div>
+                {feedMode && (
+                  <div style={{
+                    marginTop: '8px',
+                    fontSize: '10px',
+                    color: tokens.colors.textTertiary,
+                    fontFamily: tokens.typography.fontMono,
+                  }}>
+                    // {FEED_MODES[feedMode].description}
+                  </div>
+                )}
+              </div>
+
               {CATEGORIES.map(cat => {
                 const weight = preferences[cat] || 0.1;
                 const pct = Math.round(weight * 100);
@@ -733,6 +782,40 @@ export default function SmitTV() {
                   </div>
                 );
               })}
+
+              {(() => {
+                const { archetype, insight } = getArchetype(preferences);
+                return (
+                  <div style={{ marginTop: '20px', paddingTop: '16px',
+                    borderTop: `1px solid ${tokens.colors.borderSubtle}` }}>
+                    <div style={{
+                      fontSize: '10px',
+                      color: tokens.colors.textTertiary,
+                      letterSpacing: '0.1em',
+                      marginBottom: '8px',
+                    }}>
+                      // VIEWER PROFILE
+                    </div>
+                    <div style={{
+                      fontSize: '13px',
+                      fontFamily: tokens.typography.fontMono,
+                      color: 'var(--os-accent)',
+                      fontWeight: 700,
+                      letterSpacing: '0.08em',
+                      marginBottom: '4px',
+                    }}>
+                      {archetype.toUpperCase()} ARCHETYPE
+                    </div>
+                    <div style={{
+                      fontSize: '10px',
+                      color: tokens.colors.textSecondary,
+                      fontFamily: tokens.typography.fontMono,
+                    }}>
+                      {'> ' + insight}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             <div style={{
