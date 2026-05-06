@@ -143,7 +143,7 @@ export const buildFeed = (videosByCategory, preferences, feedSize = 20) => {
     const take = Math.max(1, Math.round(weight * feedSize));
     
     const available = videos.filter(v => !used.has(v.id));
-    const sampled = seededShuffle(available, Date.now()).slice(0, take);
+    const sampled = [...available].sort(() => Math.random() - 0.5).slice(0, take);
     
     sampled.forEach(v => {
       used.add(v.id);
@@ -152,7 +152,7 @@ export const buildFeed = (videosByCategory, preferences, feedSize = 20) => {
   });
 
   // Final shuffle for variety
-  return seededShuffle(feed, Date.now() + 1).slice(0, feedSize);
+  return [...feed].sort(() => Math.random() - 0.5).slice(0, feedSize);
 };
 
 // Seeded shuffle using Fisher-Yates

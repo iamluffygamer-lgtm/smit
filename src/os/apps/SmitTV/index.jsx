@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { tokens } from '../../styles/tokens';
 import {
@@ -34,6 +34,19 @@ export default function SmitTV() {
   
   const watchStartRef = useRef(null);
   const watchTimerRef = useRef(null);
+  const prefsRef = useRef(preferences);
+
+  useEffect(() => {
+    prefsRef.current = preferences;
+  }, [preferences]);
+
+  useEffect(() => {
+    return () => {
+      if (watchTimerRef.current) clearInterval(watchTimerRef.current);
+    };
+  }, []);
+
+  const archetypeResult = useMemo(() => getArchetype(preferences), [preferences]);
 
   const getTopCategory = (prefs) => {
     return Object.entries(prefs)
@@ -84,7 +97,7 @@ export default function SmitTV() {
 
   const fetchAllCategories = async () => {
     setLoading(true);
-    const cats = CATEGORIES.slice(0, 6); // fetch 6 categories initially
+    const cats = CATEGORIES;
     
     const results = {};
     
@@ -120,7 +133,7 @@ export default function SmitTV() {
         const duration = (Date.now() - watchStartRef.current) / 1000;
         if (duration > 30) {
           const { prefs: updatedPrefs, message } = updatePreferences(
-            preferences,
+            prefsRef.current,
             currentVideo.category,
             duration
           );
@@ -133,9 +146,7 @@ export default function SmitTV() {
         }
       }
     }, 5000);
-    
-    return () => clearInterval(watchTimerRef.current);
-  }, [currentVideo, preferences]);
+  }, [currentVideo]);
 
   const handleSelectVideo = (video) => {
     if (watchTimerRef.current) clearInterval(watchTimerRef.current);
@@ -760,7 +771,7 @@ export default function SmitTV() {
                         color: feedMode === key ? 'var(--os-accent)' : tokens.colors.textTertiary,
                         cursor: 'pointer',
                         backgroundColor: feedMode === key ? 
-                          'rgba(232,160,32,0.08)' : 'transparent',
+                          'var(--os-accent-muted, rgba(232,160,32,0.08))' : 'transparent',
                         transition: 'all 0.15s',
                       }}
                     >
@@ -829,7 +840,7 @@ export default function SmitTV() {
               })}
 
               {(() => {
-                const { archetype, insight } = getArchetype(preferences);
+                const { archetype, insight } = archetypeResult;
                 return (
                   <div style={{ marginTop: '20px', paddingTop: '16px',
                     borderTop: `1px solid ${tokens.colors.borderSubtle}` }}>
@@ -890,6 +901,8 @@ export default function SmitTV() {
                   const fresh = generateRandomPreferences();
                   setPreferences(fresh);
                   savePreferences(fresh);
+                  setVideosByCategory({});
+                  setLoading(true);
                   fetchAllCategories();
                   setShowPrefs(false);
                 }}

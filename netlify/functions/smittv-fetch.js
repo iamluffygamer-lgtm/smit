@@ -66,7 +66,10 @@ const fetchVideosForCategory = async (query, category) => {
   try {
     const ytRes = await fetch(
       `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`,
-      { headers: { 'Accept-Language': 'en-US,en;q=0.9', 'User-Agent': 'Mozilla/5.0' } }
+      { 
+        headers: { 'Accept-Language': 'en-US,en;q=0.9', 'User-Agent': 'Mozilla/5.0' },
+        signal: AbortSignal.timeout(5000),
+      }
     );
     const html = await ytRes.text();
     const matches = [...html.matchAll(/"videoId":"([a-zA-Z0-9_-]{11})"/g)];
@@ -181,7 +184,7 @@ const getFallbackVideos = () => [
   { id: 'Lp7E973zozc', title: 'Elon Musk: The mind behind Tesla', channel: 'TED', thumbnail: `https://img.youtube.com/vi/Lp7E973zozc/maxresdefault.jpg`, views: '12M views', duration: '18:04', published: '11 years ago', category: 'motivation' },
 
   // DESIGN
-  { id: 'YqQx75OPRa0', title: 'Why does the universe exist?', channel: 'TED', thumbnail: `https://img.youtube.com/vi/YqQx75OPRa0/maxresdefault.jpg`, views: '5M views', duration: '7:51', published: '6 years ago', category: 'design' },
+  { id: 'YqQx75OPRa0', title: 'Why does the universe exist?', channel: 'TED', thumbnail: `https://img.youtube.com/vi/YqQx75OPRa0/maxresdefault.jpg`, views: '5M views', duration: '7:51', published: '6 years ago', category: 'science' },
 
   // MUSIC
   { id: 'dQw4w9WgXcQ', title: 'Never Gonna Give You Up', channel: 'Rick Astley', thumbnail: `https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg`, views: '1.4B views', duration: '3:33', published: '15 years ago', category: 'music' },
