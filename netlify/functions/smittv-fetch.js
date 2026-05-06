@@ -30,6 +30,58 @@ const CATEGORY_QUERIES = {
   startups: 'startup founder story build',
 };
 
+const INVIDIOUS_INSTANCES = [
+  'https://inv.nadeko.net',
+  'https://invidious.privacyredirect.com',
+  'https://yt.artemislena.eu',
+];
+
+const fetchVideosForCategory = async (query, category) => {
+  // Try each Invidious instance
+  for (const instance of INVIDIOUS_INSTANCES) {
+    try {
+      const res = await fetch(
+        `${instance}/api/v1/search?q=${encodeURIComponent(query)}&type=video&fields=videoId,title,author,lengthSeconds,viewCount,published&sort_by=relevance`,
+        { signal: AbortSignal.timeout(4000) }
+      );
+      if (!res.ok) continue;
+      const data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) continue;
+      
+      return data.slice(0, 15).map(v => ({
+        id: v.videoId,
+        title: v.title || 'Unknown',
+        channel: v.author || 'Unknown',
+        thumbnail: `https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg`,
+        views: v.viewCount ? `${Math.round(v.viewCount/1000)}K views` : '',
+        duration: v.lengthSeconds ? 
+          `${Math.floor(v.lengthSeconds/60)}:${String(v.lengthSeconds%60).padStart(2,'0')}` : '',
+        published: v.published ? new Date(v.published*1000).getFullYear().toString() : '',
+        category,
+      })).filter(v => v.id);
+    } catch { continue; }
+  }
+
+  // Fallback: simple YouTube HTML scrape
+  try {
+    const ytRes = await fetch(
+      `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`,
+      { headers: { 'Accept-Language': 'en-US,en;q=0.9', 'User-Agent': 'Mozilla/5.0' } }
+    );
+    const html = await ytRes.text();
+    const matches = [...html.matchAll(/"videoId":"([a-zA-Z0-9_-]{11})"/g)];
+    const ids = [...new Set(matches.map(m => m[1]))].slice(0, 15);
+    
+    return ids.map(id => ({
+      id,
+      title: 'Video',
+      channel: '',
+      thumbnail: `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
+      views: '', duration: '', published: '',
+      category,
+    }));
+  } catch { return []; }
+};
 exports.handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -70,29 +122,8 @@ exports.handler = async (event) => {
 
     // Cache miss — scrape YouTube
     const query = CATEGORY_QUERIES[category];
-    const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}&sp=EgIQAQ%3D%3D`;
-
-    const response = await fetch(searchUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept-Language': 'en-US,en;q=0.9',
-      },
-    });
-
-    const html = await response.text();
-
-    // Extract ytInitialData
-    const match = html.match(/var ytInitialData = ({.+?});<\/script>/s);
-    if (!match) {
-      throw new Error('Could not parse YouTube response');
-    }
-
-    const ytData = JSON.parse(match[1]);
-    const videos = extractVideos(ytData);
-
-    if (videos.length === 0) {
-      throw new Error('No videos extracted');
-    }
+    const videos = await fetchVideosForCategory(query, category);
+    if (videos.length === 0) throw new Error('No videos found');
 
     // Save to Firebase cache
     await setDoc(cacheRef, {
@@ -125,38 +156,6 @@ exports.handler = async (event) => {
         error: error.message,
       }),
     };
-  }
-};
-
-const extractVideos = (ytData) => {
-  try {
-    const contents = ytData
-      ?.contents
-      ?.twoColumnSearchResultsRenderer
-      ?.primaryContents
-      ?.sectionListRenderer
-      ?.contents?.[0]
-      ?.itemSectionRenderer
-      ?.contents || [];
-
-    return contents
-      .filter(item => item.videoRenderer)
-      .slice(0, 15)
-      .map(item => {
-        const v = item.videoRenderer;
-        return {
-          id: v.videoId,
-          title: v.title?.runs?.[0]?.text || 'Unknown',
-          channel: v.ownerText?.runs?.[0]?.text || 'Unknown',
-          thumbnail: v.thumbnail?.thumbnails?.slice(-1)?.[0]?.url || '',
-          views: v.viewCountText?.simpleText || '',
-          duration: v.lengthText?.simpleText || '',
-          published: v.publishedTimeText?.simpleText || '',
-        };
-      })
-      .filter(v => v.id && v.title !== 'Unknown');
-  } catch (e) {
-    return [];
   }
 };
 
