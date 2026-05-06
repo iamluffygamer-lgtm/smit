@@ -40,6 +40,18 @@ export default function SmitTV() {
       .sort(([,a],[,b]) => b - a)[0]?.[0] || 'mixed';
   };
 
+  const getWhyReason = (video, prefs) => {
+    const normalized = normalize(prefs);
+    const cat = video.category;
+    const weight = normalized[cat] || 0;
+    
+    if (weight > 0.15) return `High ${cat} affinity in your profile`;
+    if (video.channel && getHistory().some(h => h.channel === video.channel))
+      return `You watched ${video.channel} before`;
+    if (weight > 0.08) return `Matches your ${cat} interest`;
+    return `Trending in ${cat}`;
+  };
+
   useEffect(() => {
     if (totalWatchTime > 0 && totalWatchTime % 600 === 0) {
       const topCat = getTopCategory(preferences);
@@ -168,6 +180,15 @@ export default function SmitTV() {
       overflow: 'hidden',
       position: 'relative',
     }}>
+
+      <div style={{
+        position: 'absolute',
+        top: 0, left: 0,
+        width: '100%', height: '100%',
+        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px)',
+        pointerEvents: 'none',
+        zIndex: 1,
+      }} />
 
       {(systemMsg || sessionObservation) && (
         <div style={{
@@ -329,21 +350,30 @@ export default function SmitTV() {
             backgroundColor: '#000',
             flexShrink: 0,
           }}>
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'radial-gradient(ellipse at center, rgba(232,160,32,0.04) 0%, transparent 70%)',
+              pointerEvents: 'none',
+              zIndex: 0,
+            }} />
             {currentVideo ? (
-              <iframe
-                key={currentVideo.id}
-                src={`https://www.youtube.com/embed/${currentVideo.id}?autoplay=1&rel=0&modestbranding=1`}
-                style={{
-                  position: 'absolute',
-                  top: 0, left: 0,
-                  width: '100%', height: '100%',
-                  border: 'none',
-                }}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                onLoad={handleVideoLoad}
-                title={currentVideo.title}
-              />
+              <div style={{
+                position: 'absolute', inset: 0, zIndex: 1,
+                boxShadow: 'inset 0 0 40px rgba(0,0,0,0.4)',
+              }}>
+                <iframe
+                  key={currentVideo.id}
+                  src={`https://www.youtube.com/embed/${currentVideo.id}?autoplay=1&rel=0&modestbranding=1`}
+                  style={{
+                    width: '100%', height: '100%',
+                    border: 'none',
+                  }}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  onLoad={handleVideoLoad}
+                  title={currentVideo.title}
+                />
+              </div>
             ) : (
               <div style={{
                 position: 'absolute',
@@ -413,6 +443,15 @@ export default function SmitTV() {
                 }}>
                   {currentVideo.category?.toUpperCase()}
                 </span>
+              </div>
+              <div style={{
+                marginTop: '6px',
+                fontSize: '10px',
+                fontFamily: tokens.typography.fontMono,
+                color: tokens.colors.textTertiary,
+                opacity: 0.7,
+              }}>
+                {'// recommended: ' + getWhyReason(currentVideo, preferences)}
               </div>
             </div>
           )}
@@ -507,11 +546,11 @@ export default function SmitTV() {
                   }}>
                     <motion.div
                       animate={{ width: `${weight * 100}%` }}
-                      transition={{ duration: 0.5, ease: 'easeOut' }}
                       style={{
                         height: '100%',
                         backgroundColor: 'var(--os-accent)',
                         opacity: 0.6 + weight * 0.4,
+                        transition: 'width 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
                       }}
                     />
                   </div>
@@ -611,15 +650,21 @@ export default function SmitTV() {
               </div>
             ) : (
               <AnimatePresence>
-                {(activeTab === 'feed' ? filteredFeed : getHistory()).map((video, i) => (
-                  <VideoCard
-                    key={`${video.id}-${i}`}
-                    video={video}
-                    isActive={currentVideo?.id === video.id}
-                    index={i}
-                    onSelect={handleSelectVideo}
-                  />
-                ))}
+                {(() => {
+                  const topCategory = Object.entries(normalize(preferences))
+                    .sort(([,a],[,b]) => b - a)[0]?.[0];
+                    
+                  return (activeTab === 'feed' ? filteredFeed : getHistory()).map((video, i) => (
+                    <VideoCard
+                      key={`${video.id}-${i}`}
+                      video={video}
+                      isActive={currentVideo?.id === video.id}
+                      isHighAffinity={video.category === topCategory}
+                      index={i}
+                      onSelect={handleSelectVideo}
+                    />
+                  ));
+                })()}
               </AnimatePresence>
             )}
           </div>
@@ -875,7 +920,7 @@ export default function SmitTV() {
 // VIDEO CARD COMPONENT
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const VideoCard = ({ video, isActive, index, onSelect }) => {
+const VideoCard = ({ video, isActive, isHighAffinity, index, onSelect }) => {
   const [hovered, setHovered] = useState(false);
   const [imgError, setImgError] = useState(false);
 
@@ -898,7 +943,7 @@ const VideoCard = ({ video, isActive, index, onSelect }) => {
           : hovered
           ? tokens.colors.bgElevated
           : 'transparent',
-        borderLeft: isActive
+        borderLeft: isActive || isHighAffinity
           ? '2px solid var(--os-accent)'
           : '2px solid transparent',
         transition: 'all 0.1s',
