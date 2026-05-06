@@ -189,6 +189,19 @@ export const APP_CATALOG = [
     featured: false,
     icon: '⬛',
   },
+  {
+    id: 'smit-tv',
+    appId: 'smitTV',
+    name: 'Smit TV',
+    tagline: 'An algorithmic video feed built for you.',
+    description: 'A fully functional algorithmic video feed that learns your preferences as you watch. Explore categories, boost your favorites, and watch real YouTube videos.',
+    category: 'ENTERTAINMENT',
+    version: '1.0.0',
+    size: '1.2 MB',
+    author: 'Smit Patil',
+    featured: true,
+    icon: '📺',
+  },
 ];
 
 

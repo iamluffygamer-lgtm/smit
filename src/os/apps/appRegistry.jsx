@@ -10,6 +10,7 @@ import { IconFiles } from '../icons/IconFiles';
 import { IconMusic } from '../icons/IconMusic';
 import { IconBrowser } from '../icons/IconBrowser';
 import { IconNotes } from '../icons/IconNotes';
+import SmitTV from './SmitTV';
 
 export const appRegistry = [
     {
@@ -86,5 +87,13 @@ export const appRegistry = [
         defaultSize: { width: 480, height: 580 },
         defaultPosition: { x: 200, y: 80 },
         Component: AppStore,
+    },
+    {
+        id: 'smitTV',
+        name: 'Smit TV',
+        icon: '📺',
+        defaultSize: { width: 900, height: 600 },
+        defaultPosition: { x: 100, y: 50 },
+        Component: SmitTV
     }
 ];
