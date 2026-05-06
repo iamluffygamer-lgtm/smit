@@ -18,6 +18,7 @@ import { IconFiles } from '../icons/IconFiles';
 import { IconBrowser } from '../icons/IconBrowser';
 import { IconNotes } from '../icons/IconNotes';
 import { useKonamiCode } from '../hooks/useKonamiCode';
+import { PWAInstallButton } from '../system/PWAInstallButton';
 
 const styles = {
     wallpaper: {
@@ -384,15 +385,22 @@ export const Desktop = () => {
 
                     {/* CENTER SECTION */}
                     <div style={{
-                        fontSize: '10px',
-                        fontFamily: tokens.typography.fontMono,
-                        color: 'rgba(240,237,232,0.15)',
-                        letterSpacing: '0.1em',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '16px',
                         position: 'absolute',
                         left: '50%',
                         transform: 'translateX(-50%)',
                     }}>
-                        visitor@smit-os
+                        <PWAInstallButton />
+                        <div style={{
+                            fontSize: '10px',
+                            fontFamily: tokens.typography.fontMono,
+                            color: 'rgba(240,237,232,0.15)',
+                            letterSpacing: '0.1em',
+                        }}>
+                            visitor@smit-os
+                        </div>
                     </div>
 
                     {/* RIGHT SECTION */}
