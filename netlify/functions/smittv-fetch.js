@@ -30,36 +30,39 @@ const CATEGORY_QUERIES = {
   startups: 'startup founder story build',
 };
 
-const INVIDIOUS_INSTANCES = [
-   'https://inv.thepixora.com',
-  'https://inv.nadeko.net',
-  'https://invidious.privacyredirect.com',
-  'https://yt.artemislena.eu',
+const PIPED_INSTANCES = [
+  'https://pipedapi.kavin.rocks',
+  'https://pipedapi.tokhmi.xyz',
+  'https://pipedapi.smnz.de',
+  'https://api.piped.privacydev.net'
 ];
 
 const fetchVideosForCategory = async (query, category) => {
-  // Try each Invidious instance
-  for (const instance of INVIDIOUS_INSTANCES) {
+  // Try each Piped instance
+  for (const instance of PIPED_INSTANCES) {
     try {
       const res = await fetch(
-        `${instance}/api/v1/search?q=${encodeURIComponent(query)}&type=video&fields=videoId,title,author,lengthSeconds,viewCount,published&sort_by=relevance`,
+        `${instance}/search?q=${encodeURIComponent(query)}&filter=videos`,
         { signal: AbortSignal.timeout(4000) }
       );
       if (!res.ok) continue;
       const data = await res.json();
-      if (!Array.isArray(data) || data.length === 0) continue;
+      if (!data.items || !Array.isArray(data.items) || data.items.length === 0) continue;
       
-      return data.slice(0, 15).map(v => ({
-        id: v.videoId,
-        title: v.title || 'Unknown',
-        channel: v.author || 'Unknown',
-        thumbnail: `https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg`,
-        views: v.viewCount ? `${Math.round(v.viewCount/1000)}K views` : '',
-        duration: v.lengthSeconds ? 
-          `${Math.floor(v.lengthSeconds/60)}:${String(v.lengthSeconds%60).padStart(2,'0')}` : '',
-        published: v.published ? new Date(v.published*1000).getFullYear().toString() : '',
-        category,
-      })).filter(v => v.id);
+      return data.items.slice(0, 15).map(v => {
+        const videoId = v.url.split('v=')[1];
+        return {
+          id: videoId,
+          title: v.title || 'Unknown',
+          channel: v.uploaderName || 'Unknown',
+          thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+          views: v.views ? `${Math.round(v.views/1000)}K views` : '',
+          duration: v.duration ? 
+            `${Math.floor(v.duration/60)}:${String(v.duration%60).padStart(2,'0')}` : '',
+          published: v.uploadedDate || '',
+          category,
+        };
+      }).filter(v => v.id);
     } catch { continue; }
   }
 
