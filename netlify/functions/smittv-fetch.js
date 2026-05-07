@@ -1,5 +1,6 @@
 const { initializeApp, getApps } = require('firebase/app');
 const { getFirestore, doc, getDoc, setDoc, serverTimestamp } = require('firebase/firestore');
+const ytSearch = require('yt-search');
 
 // Firebase config — use environment variables
 const firebaseConfig = {
@@ -30,75 +31,25 @@ const CATEGORY_QUERIES = {
   startups: 'startup founder story build',
 };
 
-const PIPED_INSTANCES = [
-  'https://pipedapi.kavin.rocks',
-  'https://pipedapi.tokhmi.xyz',
-  'https://pipedapi.smnz.de',
-  'https://api.piped.privacydev.net'
-];
-
 const fetchVideosForCategory = async (query, category) => {
-  // Try each Piped instance
-  for (const instance of PIPED_INSTANCES) {
-    try {
-      const res = await fetch(
-        `${instance}/search?q=${encodeURIComponent(query)}&filter=videos`,
-        { signal: AbortSignal.timeout(4000) }
-      );
-      if (!res.ok) continue;
-      const data = await res.json();
-      if (!data.items || !Array.isArray(data.items) || data.items.length === 0) continue;
-      
-      return data.items.slice(0, 15).map(v => {
-        const videoId = v.url.split('v=')[1];
-        return {
-          id: videoId,
-          title: v.title || 'Unknown',
-          channel: v.uploaderName || 'Unknown',
-          thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
-          views: v.views ? `${Math.round(v.views/1000)}K views` : '',
-          duration: v.duration ? 
-            `${Math.floor(v.duration/60)}:${String(v.duration%60).padStart(2,'0')}` : '',
-          published: v.uploadedDate || '',
-          category,
-        };
-      }).filter(v => v.id);
-    } catch { continue; }
-  }
-
-  // Fallback: simple YouTube HTML scrape
   try {
-    const ytRes = await fetch(
-      `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`,
-      {
-        headers: { 'Accept-Language': 'en-US,en;q=0.9', 'User-Agent': 'Mozilla/5.0' },
-        signal: AbortSignal.timeout(5000),
-      }
-    );
-    const html = await ytRes.text();
+    const r = await ytSearch(query);
+    if (!r.videos || r.videos.length === 0) return [];
 
-    const videoRegex = /"videoId":"([a-zA-Z0-9_-]{11})"[^}]{0,300}?"text":"([^"]{1,200})"/g;
-    const seen = new Set();
-    const videos = [];
-    let match;
-    while ((match = videoRegex.exec(html)) !== null) {
-      const [, id, title] = match;
-      if (!seen.has(id)) {
-        seen.add(id);
-        videos.push({ id, title });
-      }
-      if (videos.length >= 15) break;
-    }
-
-    return videos.map(({ id, title }) => ({
-      id,
-      title,
-      channel: '',
-      thumbnail: `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
-      views: '', duration: '', published: '',
+    return r.videos.slice(0, 15).map(v => ({
+      id: v.videoId,
+      title: v.title || 'Unknown',
+      channel: v.author?.name || 'Unknown',
+      thumbnail: v.thumbnail || `https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg`,
+      views: v.views ? `${Math.round(v.views/1000)}K views` : '',
+      duration: v.timestamp || '',
+      published: v.ago || '',
       category,
-    }));
-  } catch { return []; }
+    })).filter(v => v.id);
+  } catch (error) {
+    console.error('ytSearch failed:', error);
+    return [];
+  }
 };
 exports.handler = async (event) => {
   const headers = {
