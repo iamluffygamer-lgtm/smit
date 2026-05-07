@@ -31,6 +31,7 @@ const CATEGORY_QUERIES = {
 };
 
 const INVIDIOUS_INSTANCES = [
+   'https://inv.thepixora.com',
   'https://inv.nadeko.net',
   'https://invidious.privacyredirect.com',
   'https://yt.artemislena.eu',
