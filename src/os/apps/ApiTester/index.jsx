@@ -110,20 +110,65 @@ export default function ApiTester() {
     const timeoutId = setTimeout(() => controller.abort(), 30000);
 
     try {
-      const res = await fetch(finalUrl, { ...options, signal: controller.signal });
+      let isLocal = finalUrl.includes('localhost') || finalUrl.includes('127.0.0.1');
+      let res;
+      let actualStatus;
+      let actualStatusText;
+      let resHeaders = [];
+      let data;
+      let isJson = false;
+
+      if (isLocal) {
+        res = await fetch(finalUrl, { ...options, signal: controller.signal });
+        actualStatus = res.status;
+        actualStatusText = res.statusText;
+        res.headers.forEach((value, key) => resHeaders.push({ key, value }));
+
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          data = await res.json();
+          isJson = true;
+        } else {
+          data = await res.text();
+        }
+      } else {
+        res = await fetch('/.netlify/functions/cors-proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url: finalUrl,
+            method,
+            reqHeaders: headers,
+            body: ['POST', 'PUT', 'PATCH'].includes(method) ? reqBody : undefined
+          }),
+          signal: controller.signal
+        });
+        
+        actualStatus = parseInt(res.headers.get('X-Proxied-Status')) || res.status;
+        actualStatusText = res.headers.get('X-Proxied-Status-Text') || res.statusText;
+        
+        const proxiedHeadersStr = res.headers.get('X-Proxied-Headers');
+        if (proxiedHeadersStr) {
+          try {
+            const parsed = JSON.parse(proxiedHeadersStr);
+            Object.entries(parsed).forEach(([key, value]) => resHeaders.push({ key, value }));
+          } catch(e) {}
+        } else {
+          res.headers.forEach((value, key) => resHeaders.push({ key, value }));
+        }
+
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          data = await res.json();
+          isJson = true;
+        } else {
+          data = await res.text();
+        }
+      }
+
       clearTimeout(timeoutId);
       const endTime = Date.now();
       const time = endTime - startTime;
-
-      let data;
-      let isJson = false;
-      const contentType = res.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        data = await res.json();
-        isJson = true;
-      } else {
-        data = await res.text();
-      }
 
       let size = 0;
       if (typeof data === 'string') {
@@ -131,11 +176,6 @@ export default function ApiTester() {
       } else {
         size = new Blob([JSON.stringify(data)]).size;
       }
-
-      const resHeaders = [];
-      res.headers.forEach((value, key) => {
-        resHeaders.push({ key, value });
-      });
 
       // fake timeline
       const t = time;
@@ -149,8 +189,8 @@ export default function ApiTester() {
       };
 
       setResponse({
-        status: res.status,
-        statusText: res.statusText,
+        status: actualStatus,
+        statusText: actualStatusText,
         time,
         size: (size / 1024).toFixed(2),
         data,
